@@ -130,13 +130,15 @@ class OpenSSLConan(ConanFile):
                 run_in_src("make")
 
         def windows_make(config_options_string):
-            self.output.warn("----------CONFIGURING OPENSSL %s-------------" % self.version)
+            self.output.warn("----------CONFIGURING OPENSSL FOR WINDOWS. %s-------------" % self.version)
             debug = "debug-" if self.settings.build_type == "Debug" else ""
             arch = "32" if self.settings.arch == "x86" else "64A"
             configure_type = debug + "VC-WIN" + arch
             # Will output binaries to ./binaries
             config_command = "perl Configure %s no-asm --prefix=../binaries" % configure_type
-            run_in_src("%s %s" % (config_command, config_options_string))
+            whole_command = "%s %s" % (config_command, config_options_string)
+            self.output.warn(whole_command)
+            run_in_src(whole_command)
 
             if self.options.no_asm:
                 run_in_src("ms\do_nasm")
@@ -195,7 +197,7 @@ class OpenSSLConan(ConanFile):
 
     def package_info(self):
         if self.settings.os == "Windows":
-            suffix = self.settings.compiler.runtime
+            suffix = str(self.settings.compiler.runtime)
             self.cpp_info.libs = ["ssleay32" + suffix, "libeay32" + suffix]
         else:
             self.cpp_info.libs = ["ssl", "crypto"]
