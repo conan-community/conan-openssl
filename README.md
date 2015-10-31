@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/lasote/conan-openssl.svg?branch=master)](https://travis-ci.org/lasote/conan-openssl)
+
 # conan-openssl
 
 [Conan.io](https://conan.io) package for OpenSSL library
