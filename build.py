@@ -12,7 +12,9 @@ def test(arguments):
         exit("Error while executing:\n\t %s" % command)
 
 if __name__ == "__main__":
-    os.system('conan export lasote/stable')
+    channel = "lasote/stable"
+    
+    os.system('conan export %s' % channel)
 
     if platform.system() == "Windows":
         if len(sys.argv) != 2 or sys.argv[1] not in ["x86", "x86_64"]:
@@ -37,13 +39,14 @@ if __name__ == "__main__":
         test(compiler + '-s arch='+arch+' -s build_type=Release -s compiler.runtime=MT -o OpenSSL:shared=True')
 
     else:  # Compiler and version not specified, please set it in your home/.conan/conan.conf (Valid for Macos and Linux)
-        # Static x86
-        test('-s arch=x86 -s build_type=Debug -o OpenSSL:shared=False')
-        test('-s arch=x86 -s build_type=Release -o OpenSSL:shared=False')
-
-        # Shared x86
-        test('-s arch=x86 -s build_type=Debug -o OpenSSL:shared=True')
-        test('-s arch=x86 -s build_type=Release -o OpenSSL:shared=True')
+        if "travis" not in channel:
+            # Static x86
+            test('-s arch=x86 -s build_type=Debug -o OpenSSL:shared=False')
+            test('-s arch=x86 -s build_type=Release -o OpenSSL:shared=False')
+    
+            # Shared x86
+            test('-s arch=x86 -s build_type=Debug -o OpenSSL:shared=True')
+            test('-s arch=x86 -s build_type=Release -o OpenSSL:shared=True')
 
         # Static x86_64
         test('-s arch=x86_64 -s build_type=Debug -o OpenSSL:shared=False')

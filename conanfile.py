@@ -61,6 +61,13 @@ class OpenSSLConan(ConanFile):
     def subfolder(self):
         return "openssl-%s" % self.version
 
+    def system_requirements(self):
+        if self.settings.os == "Linux": # Further check for debian based missing
+            self.run("sudo apt-get install electric-fence || true")
+            self.run("sudo apt-get install electric-fence:i386 || true")
+#             self.run("sudo apt-get install lib32stdc++6 || true")
+#             self.run("sudo apt-get install ia32-libs || true")
+
     def build(self):
         '''
             For Visual Studio (tried with 2010) compiling need:
@@ -71,8 +78,6 @@ class OpenSSLConan(ConanFile):
             Open the visual 2010 command system symbol and run conan.
 
             Here are good page explaining it: http://hostagebrain.blogspot.com.es/2015/04/build-openssl-on-windows.html
-
-            NOTE: For linux is required libefence for debug I think: "apt-get install electric-fence" and "apt-get install electric-fence:i386"
         '''
         config_options_string = ""
 
