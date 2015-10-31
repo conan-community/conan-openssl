@@ -68,10 +68,7 @@ class OpenSSLConan(ConanFile):
 
     def system_requirements(self):
         if self.settings.os == "Linux": # Further check for debian based missing
-            self.run("sudo apt-get install electric-fence || true")
             self.run("sudo apt-get install electric-fence:i386 || true")
-#             self.run("sudo apt-get install lib32stdc++6 || true")
-#             self.run("sudo apt-get install ia32-libs || true")
 
     def build(self):
         '''
