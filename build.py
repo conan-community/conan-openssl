@@ -4,17 +4,17 @@ import shutil
 import platform
 import sys
 
-
-def test(arguments):
-    command = "conan test %s" % arguments
-    retcode = os.system(command)
-    if retcode != 0:
-        exit("Error while executing:\n\t %s" % command)
-
 if __name__ == "__main__":
-    channel = "lasote/stable"
     
-    os.system('conan export %s' % channel)
+    os.system('conan export lasote/stable')
+    
+    def test(settings):
+        argv =  " ".join(sys.argv[1:])
+        command = "conan test %s %s" % (settings, argv)
+        retcode = os.system(command)
+        if retcode != 0:
+            exit("Error while executing:\n\t %s" % command)
+
 
     if platform.system() == "Windows":
         if len(sys.argv) != 2 or sys.argv[1] not in ["x86", "x86_64"]:
@@ -39,7 +39,7 @@ if __name__ == "__main__":
         test(compiler + '-s arch='+arch+' -s build_type=Release -s compiler.runtime=MT -o OpenSSL:shared=True')
 
     else:  # Compiler and version not specified, please set it in your home/.conan/conan.conf (Valid for Macos and Linux)
-        if "travis" not in channel:
+        if not os.getenv("TRAVIS", False):   
             # Static x86
             test('-s arch=x86 -s build_type=Debug -o OpenSSL:shared=False')
             test('-s arch=x86 -s build_type=Release -o OpenSSL:shared=False')

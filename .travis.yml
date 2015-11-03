@@ -19,11 +19,7 @@ install:
 - conan user lasote
 - echo -e "\ncompiler=gcc" >> ~/.conan/conan.conf
 - echo -e "\ncompiler.version=$(gcc -dumpversion)" >> ~/.conan/conan.conf
-- conan install . || echo "Ignore fail, just generates default settings"
-- sed -i -- 's/\[\"4.8\"/\[\"4.6\", \"4.7\", \"4.8\"/g' ~/.conan/settings.yml  # Add 4.6
-# Adjust channel to travis to force compile from source (except requires)
-- sed -i -- 's/\/stable/\/travis/g' build.py
-- sed -i -- 's/\/stable/\/travis/g' test/conanfile.py
+
 
 script:
 - python build.py
