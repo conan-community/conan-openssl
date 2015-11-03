@@ -1,6 +1,4 @@
 import os
-import hashlib
-import shutil
 import platform
 import sys
 
