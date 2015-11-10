@@ -66,10 +66,6 @@ class OpenSSLConan(ConanFile):
     def subfolder(self):
         return "openssl-%s" % self.version
 
-    def system_requirements(self):
-        if self.settings.os == "Linux": # Further check for debian based missing
-            self.run("sudo apt-get install electric-fence:i386 || true")
-
     def build(self):
         '''
             For Visual Studio (tried with 2010) compiling need:
@@ -81,6 +77,9 @@ class OpenSSLConan(ConanFile):
 
             Here are good page explaining it: http://hostagebrain.blogspot.com.es/2015/04/build-openssl-on-windows.html
         '''
+        if self.settings.os == "Linux": # Further check for debian based missing
+            self.run("sudo apt-get install electric-fence:i386 || true")
+
         config_options_string = ""
 
         if self.deps_cpp_info.include_paths:
