@@ -1,6 +1,7 @@
 language: cpp
 compiler:
 - gcc
+- clang
 install:
 # Install gcc-multilib (fixed some errors)
 - sudo apt-get update -qq
@@ -17,8 +18,6 @@ install:
 - rm conan.deb
 # Adjust config and settings
 - conan user lasote
-- echo -e "\ncompiler=gcc" >> ~/.conan/conan.conf
-- echo -e "\ncompiler.version=$(gcc -dumpversion)" >> ~/.conan/conan.conf
 
 script:
-- python build.py -x OpenSSL
+- python build.py
