@@ -1,5 +1,6 @@
 from conans import ConanFile
 from conans import tools
+from conans.tools import replace_in_file
 import os
 
 
@@ -99,13 +100,6 @@ class OpenSSLConan(ConanFile):
             if activated:
                 self.output.info("Activated option! %s" % option_name)
                 config_options_string += " %s" % option_name.replace("_", "-")
-
-        def replace_in_file(file_path, search, replace):
-            with open(file_path, 'r') as content_file:
-                content = content_file.read()
-                content = content.replace(search, replace)
-            with open(file_path, 'wb') as handle:
-                handle.write(content)
 
         def run_in_src(command):
             self.run("cd openssl-%s && %s" % (self.version, command))
