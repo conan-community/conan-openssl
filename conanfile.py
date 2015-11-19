@@ -79,7 +79,9 @@ class OpenSSLConan(ConanFile):
         '''
         if self.settings.os == "Linux": # Further check for debian based missing
             self.run("sudo apt-get install electric-fence:i386 || true")
-
+            if self.settings.compiler == "clang":
+                self.run("sudo apt-get install xutils-dev")
+        
         config_options_string = ""
 
         if self.deps_cpp_info.include_paths:
