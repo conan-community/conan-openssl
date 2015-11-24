@@ -202,5 +202,7 @@ class OpenSSLConan(ConanFile):
         if self.settings.os == "Windows":
             suffix = str(self.settings.compiler.runtime)
             self.cpp_info.libs = ["ssleay32" + suffix, "libeay32" + suffix]
+        elif self.settings.os == "Linux":
+            self.cpp_info.libs = ["ssl", "crypto", "dl"]
         else:
             self.cpp_info.libs = ["ssl", "crypto"]
