@@ -186,6 +186,7 @@ class OpenSSLConan(ConanFile):
         return
 
     def package(self):
+        self.copy(pattern="*applink.c", dst="include/openssl/", keep_path=False)
         if self.settings.os == "Windows":
             self._copy_visual_binaries()
             if self.settings.compiler == "gcc" :
