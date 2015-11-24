@@ -7,7 +7,10 @@ if __name__ == "__main__":
     os.system('conan export lasote/stable')
     
     def test(settings):
-        argv =  " ".join(sys.argv[1:])
+        if platform.system() == "Windows":
+            argv =  " ".join(sys.argv[1:-1])
+        else:
+            argv =  " ".join(sys.argv[1:])
         command = "conan test %s %s" % (settings, argv)
         retcode = os.system(command)
         if retcode != 0:
@@ -23,7 +26,7 @@ if __name__ == "__main__":
         print("Verify that you are running a %s visual console" % arch)
         raw_input("Press Enter to continue...")
 
-        compiler = '-s compiler="Visual Studio" -s compiler.version=12 '
+        compiler = '-s compiler="Visual Studio" -s compiler.version=14 '
         # Static
         test(compiler + '-s arch='+arch+' -s build_type=Debug -s compiler.runtime=MDd -o OpenSSL:shared=False')
         test(compiler + '-s arch='+arch+' -s build_type=Debug -s compiler.runtime=MTd -o OpenSSL:shared=False')

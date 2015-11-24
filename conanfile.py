@@ -44,6 +44,14 @@ class OpenSSLConan(ConanFile):
         # we need the setting to compile with cmake
         self.info.settings.compiler.version = "any"
 
+        # From Visual 14 runtime can be incompatible for static libs:
+        # http://stackoverflow.com/questions/31242820/visual-studio-14-0-lnk2001-unresolved-external-symbol-with-opencl
+        if self.settings.os == "Windows" and self.settings.compiler == "Visual Studio":
+            if int(str(self.settings.compiler.version)) >= 14:
+                self.info.settings.compiler.version = self.settings.compiler.version
+
+                
+
     def source(self):
         self.output.info("Downloading %s" % self.source_tgz)
         try:
@@ -201,7 +209,7 @@ class OpenSSLConan(ConanFile):
     def package_info(self):
         if self.settings.os == "Windows":
             suffix = str(self.settings.compiler.runtime)
-            self.cpp_info.libs = ["ssleay32" + suffix, "libeay32" + suffix]
+            self.cpp_info.libs = ["ssleay32" + suffix, "libeay32" + suffix, "crypt32.lib", "msi.lib"]
         elif self.settings.os == "Linux":
             self.cpp_info.libs = ["ssl", "crypto", "dl"]
         else:
