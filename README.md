@@ -1,5 +1,7 @@
 [![Build Status](https://travis-ci.org/lasote/conan-openssl.svg?branch=master)](https://travis-ci.org/lasote/conan-openssl)
 
+[![Join the chat at https://gitter.im/lasote/conan-openssl](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/lasote/conan-openssl?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+
 # conan-openssl
 
 [Conan.io](https://conan.io) package for OpenSSL library
