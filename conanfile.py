@@ -91,8 +91,8 @@ class OpenSSLConan(ConanFile):
                 lib_path = self.deps_cpp_info.lib_paths[0] + "/" + self.deps_cpp_info.libs[0] + ".lib"  # Concrete lib file
             else:
                 lib_path = self.deps_cpp_info.lib_paths[0]  # Just path, linux will find the right file
-            config_options_string += " --with-zlib-include=" + include_path
-            config_options_string += " --with-zlib-lib=" + lib_path
+            config_options_string += ' --with-zlib-include="%s"' % include_path
+            config_options_string += ' --with-zlib-lib="%s"' % lib_path
             self.output.warn("=====> Options: %s" % config_options_string)
 
         for option_name in self.options.values.fields:
@@ -178,6 +178,7 @@ class OpenSSLConan(ConanFile):
         return
 
     def package(self):
+        self.copy(pattern="*applink.c", dst="include/openssl/", keep_path=False)
         if self.settings.os == "Windows":
             self._copy_visual_binaries()
             if self.settings.compiler == "gcc" :
@@ -201,7 +202,7 @@ class OpenSSLConan(ConanFile):
     def package_info(self):
         if self.settings.os == "Windows":
             suffix = str(self.settings.compiler.runtime)
-            self.cpp_info.libs = ["ssleay32" + suffix, "libeay32" + suffix]
+            self.cpp_info.libs = ["ssleay32" + suffix, "libeay32" + suffix, "crypt32.lib", "msi.lib"]
         elif self.settings.os == "Linux":
             self.cpp_info.libs = ["ssl", "crypto", "dl"]
         else:
