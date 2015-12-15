@@ -39,19 +39,16 @@ class OpenSSLConan(ConanFile):
     source_tgz = "https://www.openssl.org/source/openssl-%s.tar.gz" % version
     source_tgz_old = "https://www.openssl.org/source/old/1.0.2/openssl-%s.tar.gz" % version
 
-    def conan_info(self):
-        # We don't want to change the package for each compiler version but
-        # we need the setting to compile with cmake
-        self.info.settings.compiler.version = "any"
-
     def source(self):
         self.output.info("Downloading %s" % self.source_tgz)
         try:
-            tools.download(self.source_tgz_old, "openssl.tar.gz")
+            tools.download(self.source_tgz_old, "openssl.tar.gz")            
             tools.unzip("openssl.tar.gz", ".")
         except:
             tools.download(self.source_tgz, "openssl.tar.gz")
             tools.unzip("openssl.tar.gz", ".")
+        
+        tools.check_sha256("openssl.tar.gz", "671c36487785628a703374c652ad2cebea45fa920ae5681515df25d9f2c9a8c8")
         os.unlink("openssl.tar.gz")
 
     def config(self):
