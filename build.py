@@ -40,14 +40,14 @@ if __name__ == "__main__":
         test(compiler + '-s arch='+arch+' -s build_type=Release -s compiler.runtime=MT -o OpenSSL:shared=True')
 
     else:  # Compiler and version not specified, please set it in your home/.conan/conan.conf (Valid for Macos and Linux)
-#         if not os.getenv("TRAVIS", False):   
-#             # Static x86
-#             test('-s arch=x86 -s build_type=Debug -o OpenSSL:shared=False')
-#             test('-s arch=x86 -s build_type=Release -o OpenSSL:shared=False')
-#     
-#             # Shared x86
-#             test('-s arch=x86 -s build_type=Debug -o OpenSSL:shared=True')
-#             test('-s arch=x86 -s build_type=Release -o OpenSSL:shared=True')
+        if not os.getenv("TRAVIS", False):   
+            # Static x86
+            test('-s arch=x86 -s build_type=Debug -o OpenSSL:shared=False')
+            test('-s arch=x86 -s build_type=Release -o OpenSSL:shared=False')
+     
+            # Shared x86
+            test('-s arch=x86 -s build_type=Debug -o OpenSSL:shared=True')
+            test('-s arch=x86 -s build_type=Release -o OpenSSL:shared=True')
 
         # Static x86_64
         test('-s arch=x86_64 -s build_type=Debug -o OpenSSL:shared=False')

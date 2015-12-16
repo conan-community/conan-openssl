@@ -58,9 +58,17 @@ class OpenSSLConan(ConanFile):
         os.unlink("openssl.tar.gz")
 
     def config(self):
+        
+        if self.settings.os != "Windows":
+            self.requires.add("electric-fence/2.2.0@lasote/stable", private=False)
+        else:
+            if "electric-fence" in self.requires:
+                del self.requires["electric-fence"]
+        
         if not self.options.no_zlib:
             self.requires.add("zlib/1.2.8@lasote/stable", private=False)
             self.options["zlib"].shared = self.options.zlib_dynamic
+            self.options["electric-fence"].shared = self.options.shared
         else:
             if "zlib" in self.requires:
                 del self.requires["zlib"]
@@ -81,20 +89,24 @@ class OpenSSLConan(ConanFile):
             Here are good page explaining it: http://hostagebrain.blogspot.com.es/2015/04/build-openssl-on-windows.html
         '''
         if self.settings.os == "Linux": # Further check for debian based missing
-            self.run("sudo apt-get install electric-fence || true")
             if self.settings.compiler == "clang":
                 self.run("sudo apt-get install xutils-dev")
         
         config_options_string = ""
 
         if self.deps_cpp_info.include_paths:
-            include_path = self.deps_cpp_info.include_paths[0]
+            include_path = self.deps_cpp_info["zlib"].include_paths[0]
             if self.settings.os == "Windows":
-                lib_path = self.deps_cpp_info.lib_paths[0] + "/" + self.deps_cpp_info.libs[0] + ".lib"  # Concrete lib file
+                lib_path = self.deps_cpp_info["zlib"].lib_paths[0] + "/" + self.deps_cpp_info["zlib"].libs[0] + ".lib"  # Concrete lib file
             else:
-                lib_path = self.deps_cpp_info.lib_paths[0]  # Just path, linux will find the right file
+                lib_path = self.deps_cpp_info["zlib"].lib_paths[0] # Just path, linux will find the right file
             config_options_string += ' --with-zlib-include="%s"' % include_path
             config_options_string += ' --with-zlib-lib="%s"' % lib_path
+            # EFENCE LINK
+            libs = " ".join([ "-l%s" % lib for lib in self.deps_cpp_info["electric-fence"].libs])
+            config_options_string += ' -L"%s" -I"%s" %s' % (self.deps_cpp_info["electric-fence"].lib_paths[0], 
+                                                            self.deps_cpp_info["electric-fence"].include_paths[0],
+                                                            libs)
             self.output.warn("=====> Options: %s" % config_options_string)
 
         for option_name in self.options.values.fields:
