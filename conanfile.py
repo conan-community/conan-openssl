@@ -39,6 +39,12 @@ class OpenSSLConan(ConanFile):
     source_tgz = "https://www.openssl.org/source/openssl-%s.tar.gz" % version
     source_tgz_old = "https://www.openssl.org/source/old/1.0.2/openssl-%s.tar.gz" % version
 
+    def conan_info(self):
+        # We don't want to change the package for each compiler version but
+        # we need the setting to compile with cmake
+        if self.settings.os == "Macos":
+            self.info.settings.compiler.version = "any"
+    
     def source(self):
         self.output.info("Downloading %s" % self.source_tgz)
         try:
@@ -52,8 +58,6 @@ class OpenSSLConan(ConanFile):
         os.unlink("openssl.tar.gz")
 
     def config(self):
-        if self.settings.os == "Macos":
-            self.info.settings.compiler.version = "any"
         if not self.options.no_zlib:
             self.requires.add("zlib/1.2.8@lasote/stable", private=False)
             self.options["zlib"].shared = self.options.zlib_dynamic
