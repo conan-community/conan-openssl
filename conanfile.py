@@ -52,7 +52,8 @@ class OpenSSLConan(ConanFile):
         os.unlink("openssl.tar.gz")
 
     def config(self):
-        self.settings.compiler.remove("version")
+        if self.settings.os == "Macos":
+            self.info.settings.compiler.version = "any"
         if not self.options.no_zlib:
             self.requires.add("zlib/1.2.8@lasote/stable", private=False)
             self.options["zlib"].shared = self.options.zlib_dynamic
@@ -76,7 +77,7 @@ class OpenSSLConan(ConanFile):
             Here are good page explaining it: http://hostagebrain.blogspot.com.es/2015/04/build-openssl-on-windows.html
         '''
         if self.settings.os == "Linux": # Further check for debian based missing
-            self.run("sudo apt-get install electric-fence:i386 || true")
+            self.run("sudo apt-get install electric-fence || true")
             if self.settings.compiler == "clang":
                 self.run("sudo apt-get install xutils-dev")
         
