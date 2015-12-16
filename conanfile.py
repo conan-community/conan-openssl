@@ -59,8 +59,9 @@ class OpenSSLConan(ConanFile):
 
     def config(self):
         
-        if self.settings.os != "Windows":
+        if self.settings.os == "Linux":
             self.requires.add("electric-fence/2.2.0@lasote/stable", private=False)
+            self.options["electric-fence"].shared = self.options.shared
         else:
             if "electric-fence" in self.requires:
                 del self.requires["electric-fence"]
@@ -68,7 +69,7 @@ class OpenSSLConan(ConanFile):
         if not self.options.no_zlib:
             self.requires.add("zlib/1.2.8@lasote/stable", private=False)
             self.options["zlib"].shared = self.options.zlib_dynamic
-            self.options["electric-fence"].shared = self.options.shared
+
         else:
             if "zlib" in self.requires:
                 del self.requires["zlib"]
@@ -103,10 +104,11 @@ class OpenSSLConan(ConanFile):
             config_options_string += ' --with-zlib-include="%s"' % include_path
             config_options_string += ' --with-zlib-lib="%s"' % lib_path
             # EFENCE LINK
-            libs = " ".join([ "-l%s" % lib for lib in self.deps_cpp_info["electric-fence"].libs])
-            config_options_string += ' -L"%s" -I"%s" %s' % (self.deps_cpp_info["electric-fence"].lib_paths[0], 
-                                                            self.deps_cpp_info["electric-fence"].include_paths[0],
-                                                            libs)
+            if "electric-fence" in self.requires:
+                libs = " ".join([ "-l%s" % lib for lib in self.deps_cpp_info["electric-fence"].libs])
+                config_options_string += ' -L"%s" -I"%s" %s' % (self.deps_cpp_info["electric-fence"].lib_paths[0], 
+                                                                self.deps_cpp_info["electric-fence"].include_paths[0],
+                                                                libs)
             self.output.warn("=====> Options: %s" % config_options_string)
 
         for option_name in self.options.values.fields:
