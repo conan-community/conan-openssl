@@ -6,7 +6,7 @@ import os
 
 class OpenSSLConan(ConanFile):
     name = "OpenSSL"
-    version = "1.0.2d"
+    version = "1.0.2e"
     settings = "os", "compiler", "arch", "build_type"
     url="http://github.com/lasote/conan-openssl"
     # https://github.com/openssl/openssl/blob/OpenSSL_1_0_2c/INSTALL
@@ -54,7 +54,7 @@ class OpenSSLConan(ConanFile):
             tools.download(self.source_tgz, "openssl.tar.gz")
             tools.unzip("openssl.tar.gz", ".")
         
-        tools.check_sha256("openssl.tar.gz", "671c36487785628a703374c652ad2cebea45fa920ae5681515df25d9f2c9a8c8")
+        tools.check_sha256("openssl.tar.gz", "e23ccafdb75cfcde782da0151731aa2185195ac745eea3846133f2e05c0e0bff")
         os.unlink("openssl.tar.gz")
 
     def config(self):
@@ -89,10 +89,7 @@ class OpenSSLConan(ConanFile):
 
             Here are good page explaining it: http://hostagebrain.blogspot.com.es/2015/04/build-openssl-on-windows.html
         '''
-        if self.settings.os == "Linux": # Further check for debian based missing
-            if self.settings.compiler == "clang":
-                self.run("sudo apt-get install xutils-dev")
-        
+       
         config_options_string = ""
 
         if self.deps_cpp_info.include_paths:

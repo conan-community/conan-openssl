@@ -7,7 +7,7 @@ class DefaultNameConan(ConanFile):
     name = "DefaultName"
     version = "0.1"
     settings = "os", "compiler", "arch", "build_type"
-    requires = "OpenSSL/1.0.2d@lasote/stable"
+    requires = "OpenSSL/1.0.2e@lasote/stable"
     generators = "cmake"
 
     def build(self):
