@@ -10,5 +10,5 @@ if __name__ == "__main__":
         curdir = os.path.abspath(os.path.curdir)
         command = 'sudo docker run --rm  -v %s:/home/conan/project -v '\
                   '~/.conan/data:/home/conan/.conan/data -it %s /bin/sh -c '\
-                  '"cd project && python build.py"' % (curdir, image_name)
+                  '"cd project && sudo pip install conan==0.0.1rc1 && python build.py"' % (curdir, image_name)
         os.system(command)
