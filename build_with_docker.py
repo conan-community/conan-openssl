@@ -5,7 +5,7 @@ import sys
 ############### CONFIGURE THESE VALUES ##################
 default_username = "lasote"
 default_channel = "testing"
-reference = "openssl/1.0.2e"
+reference = "OpenSSL/1.0.2e"
 #########################################################
 
 conan_username = os.getenv("CONAN_USERNAME", default_username)
@@ -32,8 +32,10 @@ if __name__ == "__main__":
         command = 'sudo docker run --rm -v %s:/home/conan/project -v '\
                   '~/.conan/data:/home/conan/.conan/data -it %s %s /bin/sh -c '\
                   '"cd project && sudo pip install conan==0.0.1rc3 --upgrade && python build.py"' % (curdir, env_vars, image_name)
-        os.system(command)
+        ret = os.system(command)
+        if ret != 0:
+            sys.exit(1)
       
     if conan_upload and conan_password:  
         os.system("conan user %s -p %s" % (conan_username, conan_password))
-        os.system("conan upload %s/%s/%s --all" % (reference, conan_username, conan_channel))
+        sys.exit(os.system("conan upload %s/%s/%s --all" % (reference, conan_username, conan_channel)))
