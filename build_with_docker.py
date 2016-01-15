@@ -34,8 +34,10 @@ if __name__ == "__main__":
                   '"cd project && sudo pip install conan==0.0.1rc3 --upgrade && python build.py"' % (curdir, env_vars, image_name)
         ret = os.system(command)
         if ret != 0:
-            sys.exit(1)
+            exit("Error building")
       
     if conan_upload and conan_password:  
         os.system("conan user %s -p %s" % (conan_username, conan_password))
-        sys.exit(os.system("conan upload %s/%s/%s --all" % (reference, conan_username, conan_channel)))
+        ret = os.system("conan upload %s/%s/%s --all" % (reference, conan_username, conan_channel))
+        if ret != 0:
+            exit("Error uploading")
