@@ -1,23 +1,11 @@
 language: cpp
-compiler:
-- gcc
-- clang
+sudo: required
+services:
+  - docker
 install:
-# Install gcc-multilib (fixed some errors)
-- sudo apt-get update -qq
-- sudo apt-get install gcc-multilib
-# Install CMake 3
-- wget https://s3.amazonaws.com/biibinaries/thirdparty/cmake-3.0.2-Linux-64.tar.gz
-- tar -xzf cmake-3.0.2-Linux-64.tar.gz
-- sudo cp -fR cmake-3.0.2-Linux-64/* /usr
-- rm -rf cmake-3.0.2-Linux-64
-- rm cmake-3.0.2-Linux-64.tar.gz
-# Download conan
-- wget $CONAN_URL -O conan.deb
-- sudo dpkg -i conan.deb
-- rm conan.deb
-# Adjust config and settings
-- conan user lasote
-
+  - wget http://downloads.conan.io/latest_debian -O conan.deb
+  - sudo dpkg -i conan.deb
+  - rm conan.deb
+  - conan user # It creates the conan data directory
 script:
-- python build.py
+- export CONAN_UPLOAD=1 && python build_with_docker.py

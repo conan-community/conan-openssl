@@ -2,10 +2,17 @@ import os
 import platform
 import sys
 
+############### CONFIGURE THESE VALUES ##################
+default_user = "lasote"
+default_channel = "testing"
+#########################################################
+
 if __name__ == "__main__":
-    
-    os.system('conan export lasote/stable')
-    
+    channel = os.getenv("CONAN_CHANNEL", default_channel)
+    username = os.getenv("CONAN_USERNAME", default_user)
+    print("User: '%s' Channel: '%s'" % (username, channel))
+    os.system('conan export %s/%s' % (username, channel))
+   
     def test(settings, visual_version=None):
         argv =  " ".join(sys.argv[1:])
         curdir = os.path.abspath(os.path.curdir)
@@ -18,7 +25,6 @@ if __name__ == "__main__":
         retcode = os.system(command)
         if retcode != 0:
             exit("Error while executing:\n\t %s" % command)
-
 
     if platform.system() == "Windows":
         for visual_version in [10, 12, 14]:
@@ -39,14 +45,13 @@ if __name__ == "__main__":
                 test(compiler + '-s arch='+arch+' -s build_type=Release -s compiler.runtime=MT -o OpenSSL:shared=True', visual_version)
 
     else:  # Compiler and version not specified, please set it in your home/.conan/conan.conf (Valid for Macos and Linux)
-        if not os.getenv("TRAVIS", False):   
-            # Static x86
-            test('-s arch=x86 -s build_type=Debug -o OpenSSL:shared=False')
-            test('-s arch=x86 -s build_type=Release -o OpenSSL:shared=False')
-     
-            # Shared x86
-            test('-s arch=x86 -s build_type=Debug -o OpenSSL:shared=True')
-            test('-s arch=x86 -s build_type=Release -o OpenSSL:shared=True')
+        # Static x86
+        test('-s arch=x86 -s build_type=Debug -o OpenSSL:shared=False')
+        test('-s arch=x86 -s build_type=Release -o OpenSSL:shared=False')
+        
+        # Shared x86
+        test('-s arch=x86 -s build_type=Debug -o OpenSSL:shared=True')
+        test('-s arch=x86 -s build_type=Release -o OpenSSL:shared=True')
 
         # Static x86_64
         test('-s arch=x86_64 -s build_type=Debug -o OpenSSL:shared=False')
