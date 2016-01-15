@@ -38,6 +38,6 @@ if __name__ == "__main__":
       
     if conan_upload and conan_password:  
         os.system("conan user %s -p %s" % (conan_username, conan_password))
-        ret = os.system("conan upload %s/%s/%s --all" % (reference, conan_username, conan_channel))
+        ret = os.system("conan upload %s/%s/%s --all --force" % (reference, conan_username, conan_channel))
         if ret != 0:
             exit("Error uploading")
