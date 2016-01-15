@@ -31,7 +31,7 @@ if __name__ == "__main__":
         env_vars = '-e CONAN_USERNAME=%s -e CONAN_CHANNEL=%s' % (conan_username, conan_channel) 
         command = 'sudo docker run --rm -v %s:/home/conan/project -v '\
                   '~/.conan/data:/home/conan/.conan/data -it %s %s /bin/sh -c '\
-                  '"cd project && sudo pip install conan --upgrade && python build.py"' % (curdir, env_vars, image_name)
+                  '"cd project && sudo pip install conan==0.0.1rc3 --upgrade && python build.py"' % (curdir, env_vars, image_name)
         os.system(command)
       
     if conan_upload and conan_password:  
