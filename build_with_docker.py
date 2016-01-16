@@ -5,13 +5,13 @@ import sys
 ############### CONFIGURE THESE VALUES ##################
 default_username = "lasote"
 default_channel = "testing"
-reference = "OpenSSL/1.0.2e"
 #########################################################
 
 conan_username = os.getenv("CONAN_USERNAME", default_username)
 conan_channel = os.getenv("CONAN_CHANNEL", default_channel if not os.getenv("TRAVIS", False) else "travis")
 conan_password = os.getenv("CONAN_PASSWORD", None)
 conan_upload = os.getenv("CONAN_UPLOAD", False)
+conan_reference = os.getenv("CONAN_REFERENCE", False) 
 
 if __name__ == "__main__":
 
@@ -38,6 +38,6 @@ if __name__ == "__main__":
       
     if conan_upload and conan_password:  
         os.system("conan user %s -p %s" % (conan_username, conan_password))
-        ret = os.system("conan upload %s/%s/%s --all --force" % (reference, conan_username, conan_channel))
+        ret = os.system("conan upload %s/%s/%s --all --force" % (conan_reference, conan_username, conan_channel))
         if ret != 0:
             exit("Error uploading")
