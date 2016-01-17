@@ -1,62 +1,47 @@
 import os
-import platform
+from conan.packager import ConanMultiPackager
 import sys
+import platform
 
-############### CONFIGURE THESE VALUES ##################
-default_user = "lasote"
-default_channel = "testing"
-#########################################################
-
-if __name__ == "__main__":
-    channel = os.getenv("CONAN_CHANNEL", default_channel)
-    username = os.getenv("CONAN_USERNAME", default_user)
-    print("User: '%s' Channel: '%s'" % (username, channel))
-    os.system('conan export %s/%s' % (username, channel))
-   
-    def test(settings, visual_version=None):
-        argv =  " ".join(sys.argv[1:])
-        curdir = os.path.abspath(os.path.curdir)
-        if visual_version:
-            vcvars = 'call "%vs' +  str(visual_version) + '0comntools%../../VC/vcvarsall.bat"'
-            param = "x86" if "arch=x86 " in settings else "amd64"
-            command = '%s %s && conan test . %s %s' % (vcvars, param, settings, argv)
-        else:
-            command = 'conan test . %s %s' % (settings, argv)
-        retcode = os.system(command)
-        if retcode != 0:
-            exit("Error while executing:\n\t %s" % command)
-
+def add_visual_builds(builder, visual_version, arch):
+    if visual_version == 10 and arch == "x86_64":
+        return
+    base_set = {"compiler": "Visual Studio", 
+                "compiler.version": visual_version, "arch": arch}
+    sets = []
+    sets.append({"build_type": "Debug", "compiler.runtime": "MDd"})
+    sets.append({"build_type": "Debug", "compiler.runtime": "MTd"})
+    sets.append({"build_type": "Release", "compiler.runtime": "MD"})
+    sets.append({"build_type": "Release", "compiler.runtime": "MT"})
+    
+    for setting in sets:
+       builder.add(copy(base_set).update(setting), {"OpenSSL:shared": False})
+       builder.add(copy(base_set).update(setting), {"OpenSSL:shared": True})
+       
+def add_other_builds(builder):
+    # Not specified compiler or compiler version, will use the auto detected     
+    for arch in ["x86", "x86_64"]:
+        for shared in [True, False]:
+            for build_type in ["Debug", "Release"]:
+                builder.add({"arch":arch, "build_type": build_type}, {"OpenSSL:shared": shared})
+           
+def get_builder(username, channel):
+    args = " ".join(sys.argv[1:])
+    builder = ConanMultiPackager(args, username, channel)
     if platform.system() == "Windows":
         for visual_version in [10, 12, 14]:
-            compiler = '-s compiler="Visual Studio" -s compiler.version=%s ' % visual_version
             for arch in ["x86", "x86_64"]:
-                if visual_version == 10 and arch=="x86_64":
-                    continue
-                # Static
-                test(compiler + '-s arch='+arch+' -s build_type=Debug -s compiler.runtime=MDd -o OpenSSL:shared=False', visual_version)
-                test(compiler + '-s arch='+arch+' -s build_type=Debug -s compiler.runtime=MTd -o OpenSSL:shared=False', visual_version)
-                test(compiler + '-s arch='+arch+' -s build_type=Release -s compiler.runtime=MD -o OpenSSL:shared=False', visual_version)
-                test(compiler + '-s arch='+arch+' -s build_type=Release -s compiler.runtime=MT -o OpenSSL:shared=False', visual_version)
+                add_visual_builds(builder, visual_version, arch)
+    else:
+        add_other_builds(builder)
+    
+    return builder
         
-                # Shared
-                test(compiler + '-s arch='+arch+' -s build_type=Debug -s compiler.runtime=MDd -o OpenSSL:shared=True', visual_version)
-                test(compiler + '-s arch='+arch+' -s build_type=Debug -s compiler.runtime=MTd -o OpenSSL:shared=True', visual_version)
-                test(compiler + '-s arch='+arch+' -s build_type=Release -s compiler.runtime=MD -o OpenSSL:shared=True', visual_version)
-                test(compiler + '-s arch='+arch+' -s build_type=Release -s compiler.runtime=MT -o OpenSSL:shared=True', visual_version)
-
-    else:  # Compiler and version not specified, please set it in your home/.conan/conan.conf (Valid for Macos and Linux)
-        # Static x86
-        test('-s arch=x86 -s build_type=Debug -o OpenSSL:shared=False')
-        test('-s arch=x86 -s build_type=Release -o OpenSSL:shared=False')
-        
-        # Shared x86
-        test('-s arch=x86 -s build_type=Debug -o OpenSSL:shared=True')
-        test('-s arch=x86 -s build_type=Release -o OpenSSL:shared=True')
-
-        # Static x86_64
-        test('-s arch=x86_64 -s build_type=Debug -o OpenSSL:shared=False')
-        test('-s arch=x86_64 -s build_type=Release -o OpenSSL:shared=False')
-
-        # Shared x86_64
-        test('-s arch=x86_64 -s build_type=Debug -o OpenSSL:shared=True')
-        test('-s arch=x86_64 -s build_type=Release -o OpenSSL:shared=True')
+if __name__ == "__main__":
+    channel = os.getenv("CONAN_CHANNEL", "testing")
+    username = os.getenv("CONAN_USERNAME", "lasote")
+    current_page = os.getenv("CONAN_CURRENT_PAGE", 1)
+    total_pages = os.getenv("CONAN_TOTAL_PAGES", 1)
+    
+    builder = get_builder(username, channel)
+    builder.pack(current_page, total_pages)
