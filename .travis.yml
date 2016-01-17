@@ -1,4 +1,4 @@
-language: cpp
+language: python
 sudo: required
 services:
   - docker
@@ -15,9 +15,7 @@ env:
   - GCC_VERSIONS: 5.3 CONAN_CURRENT_PAGE=2 CONAN_TOTAL_PAGES=2
 
 install:
-  - wget http://downloads.conan.io/latest_debian -O conan.deb
-  - sudo dpkg -i conan.deb
-  - rm conan.deb
+  - pip install conan_build_tools # It install conan too
   - conan user # It creates the conan data directory
 script:
   - export CONAN_UPLOAD=1 && 
