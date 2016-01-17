@@ -115,7 +115,7 @@ class OpenSSLConan(ConanFile):
                 config_options_string += " %s" % option_name.replace("_", "-")
 
         def run_in_src(command):
-            self.run("cd openssl-%s && %s" % (self.version, command), output=False)
+            self.run("cd openssl-%s && %s" % (self.version, command))
 
         def unix_make(config_options_string):
 
