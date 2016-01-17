@@ -11,3 +11,7 @@ if __name__ == "__main__":
     
     builder = get_builder(username, channel)
     builder.docker_pack(current_page, total_pages, gcc_versions)
+    
+    if os.getenv("CONAN_UPLOAD", False) and os.getenv("CONAN_REFERENCE") and os.getenv("CONAN_PASSWORD"):
+        reference = os.getenv("CONAN_REFERENCE")
+        builder.upload_packages(reference, os.getenv("CONAN_PASSWORD"))
