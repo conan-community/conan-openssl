@@ -16,8 +16,10 @@ def add_visual_builds(builder, visual_version, arch):
     sets.append({"build_type": "Release", "compiler.runtime": "MT"})
     
     for setting in sets:
-       builder.add(copy(base_set).update(setting), {"OpenSSL:shared": False})
-       builder.add(copy(base_set).update(setting), {"OpenSSL:shared": True})
+       tmp = copy(base_set)
+       tmp.update(setting)
+       builder.add(tmp, {"OpenSSL:shared": False})
+       builder.add(tmp, {"OpenSSL:shared": True})
        
 def add_other_builds(builder):
     # Not specified compiler or compiler version, will use the auto detected     
@@ -41,8 +43,8 @@ def get_builder(username, channel):
 if __name__ == "__main__":
     channel = os.getenv("CONAN_CHANNEL", "testing")
     username = os.getenv("CONAN_USERNAME", "lasote")
-    current_page = os.getenv("CONAN_CURRENT_PAGE", 1)
-    total_pages = os.getenv("CONAN_TOTAL_PAGES", 1)
+    current_page = os.getenv("CONAN_CURRENT_PAGE", "1")
+    total_pages = os.getenv("CONAN_TOTAL_PAGES", "1")
     
     builder = get_builder(username, channel)
     builder.pack(current_page, total_pages)
