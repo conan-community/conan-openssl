@@ -8,7 +8,7 @@ environment:
     CONAN_UPLOAD: 1
     CONAN_REFERENCE: "OpenSSL/1.0.2e"
     CONAN_USERNAME: "lasote"
-    CONAN_CHANNEL: "travis"
+    CONAN_CHANNEL: "ci"
     CONAN_TOTAL_PAGES: 15
     
     matrix:

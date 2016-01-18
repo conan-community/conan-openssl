@@ -7,7 +7,7 @@ env:
    - CONAN_UPLOAD: 1
    - CONAN_REFERENCE: "OpenSSL/1.0.2e"
    - CONAN_USERNAME: "lasote"
-   - CONAN_CHANNEL: "travis"
+   - CONAN_CHANNEL: "ci"
    - CONAN_TOTAL_PAGES: 4
  matrix:
    - CONAN_GCC_VERSIONS: 4.6 CONAN_CURRENT_PAGE=1
