@@ -33,7 +33,7 @@ class OpenSSLConan(ConanFile):
                "no_sha": [True, False]}
     default_options = "=False\n".join(options.keys()) + "=False"
 
-    exports = ("win_bin/*", "readme.txt")
+    exports = ("win_bin/*", "readme.txt", "FindOpenSSL.cmake")
 
     # When a new version is avaiable they move the tar.gz to old/ location
     source_tgz = "https://www.openssl.org/source/openssl-%s.tar.gz" % version
@@ -191,7 +191,7 @@ class OpenSSLConan(ConanFile):
         return
 
     def package(self):
-                
+        self.copy("FindOpenSSL.cmake", ".", ".")        
         self.copy(pattern="*applink.c", dst="include/openssl/", keep_path=False)
         if self.settings.os == "Windows":
             self._copy_visual_binaries()
