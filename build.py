@@ -2,6 +2,7 @@ import os
 from conan.packager import ConanMultiPackager
 import sys
 import platform
+from copy import copy
 
 def add_visual_builds(builder, visual_version, arch):
     if visual_version == 10 and arch == "x86_64":
