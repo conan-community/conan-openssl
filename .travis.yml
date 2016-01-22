@@ -37,7 +37,7 @@ env:
    - CONAN_GCC_VERSIONS: 5.3 CONAN_CURRENT_PAGE=4
 
 install:
-  - pip install conan_build_tools # It install conan too
+  - pip install conan_package_tools # It install conan too
   - conan user # It creates the conan data directory
 script:
   - python build.py
