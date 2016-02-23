@@ -16,7 +16,7 @@ matrix:
            - docker
          sudo: required
          language: python
-        - os: linux
+       - os: linux
          env:
            - CONAN_GCC_VERSIONS: 4.6 
            - CONAN_USE_DOCKER: 1
@@ -34,7 +34,7 @@ matrix:
            - docker
          sudo: required
          language: python
-        - os: linux
+       - os: linux
          env:
            - CONAN_GCC_VERSIONS: 4.8 
            - CONAN_USE_DOCKER: 1
@@ -43,7 +43,7 @@ matrix:
            - docker
          sudo: required
          language: python
-        - os: linux
+       - os: linux
          env:
            - CONAN_GCC_VERSIONS: 4.9
            - CONAN_USE_DOCKER: 1
@@ -52,12 +52,12 @@ matrix:
            - docker
          sudo: required
          language: python
-        - os: linux
+       - os: linux
          env:
            - CONAN_GCC_VERSIONS: 4.9 
            - CONAN_USE_DOCKER: 1
            - CONAN_CURRENT_PAGE: 2
-          - os: linux
+       - os: linux
          env:
            - CONAN_GCC_VERSIONS: 5.2
            - CONAN_USE_DOCKER: 1
@@ -66,7 +66,7 @@ matrix:
            - docker
          sudo: required
          language: python
-        - os: linux
+       - os: linux
          env:
            - CONAN_GCC_VERSIONS: 5.2
            - CONAN_USE_DOCKER: 1
@@ -75,7 +75,7 @@ matrix:
            - docker
          sudo: required
          language: python
-         - os: linux
+       - os: linux
          env:
            - CONAN_GCC_VERSIONS: 5.3
            - CONAN_USE_DOCKER: 1
@@ -84,7 +84,7 @@ matrix:
            - docker
          sudo: required
          language: python
-        - os: linux
+       - os: linux
          env:
            - CONAN_GCC_VERSIONS: 5.3
            - CONAN_USE_DOCKER: 1
