@@ -5,7 +5,7 @@ environment:
     PYTHON_ARCH: "32"
     
     CONAN_UPLOAD: 1
-    CONAN_REFERENCE: "OpenSSL/1.0.2f"
+    CONAN_REFERENCE: "OpenSSL/1.0.2g"
     CONAN_USERNAME: "lasote"
     CONAN_CHANNEL: "ci"
     CONAN_TOTAL_PAGES: 20
