@@ -117,8 +117,12 @@ class OpenSSLConan(ConanFile):
                 self.output.info("Activated option! %s" % option_name)
                 config_options_string += " %s" % option_name.replace("_", "-")
 
-        def run_in_src(command):
-            self.run("cd openssl-%s && %s" % (self.version, command))
+        def run_in_src(command, show_output=False):
+            command = 'cd openssl-%s && %s' % (self.version, command)
+            if not show_output:
+                command += ' | while read line; do echo -n "."; done'
+            self.run(command)
+            self.output.writeln(" ")
 
         def unix_make(config_options_string):
 
