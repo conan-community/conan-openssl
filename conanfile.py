@@ -39,6 +39,7 @@ class OpenSSLConan(ConanFile):
     # When a new version is avaiable they move the tar.gz to old/ location
     source_tgz = "https://www.openssl.org/source/openssl-%s.tar.gz" % version
     source_tgz_old = "https://www.openssl.org/source/old/1.0.2/openssl-%s.tar.gz" % version
+    counter_config = 0
 
     def source(self):
         self.output.info("Downloading %s" % self.source_tgz)
@@ -53,14 +54,16 @@ class OpenSSLConan(ConanFile):
         os.unlink("openssl.tar.gz")
 
     def config(self):
-
+        self.counter_config += 1
         try: # Try catch can be removed when conan 0.8 is released
             del self.settings.compiler.libcxx
         except:
             pass
 
         if not self.options.no_electric_fence and self.settings.os == "Linux":
-            self.requires.add("electric-fence/2.2.0@lasote/stable", private=True)
+            private = False if self.options.shared else True
+            if self.counter_config==2:
+                self.requires.add("electric-fence/2.2.0@lasote/stable", private=private)
             self.options["electric-fence"].shared = self.options.shared
         else:
             if "electric-fence" in self.requires:
