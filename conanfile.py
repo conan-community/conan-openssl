@@ -60,7 +60,7 @@ class OpenSSLConan(ConanFile):
             pass
 
         if not self.options.no_electric_fence and self.settings.os == "Linux":
-            self.requires.add("electric-fence/2.2.0@lasote/stable", private=False)
+            self.requires.add("electric-fence/2.2.0@lasote/stable", private=True)
             self.options["electric-fence"].shared = self.options.shared
         else:
             if "electric-fence" in self.requires:
@@ -132,9 +132,10 @@ class OpenSSLConan(ConanFile):
                 if self.settings.build_type == "Debug":
                     config_options_string = "-d " + config_options_string
 
-                m32_pref = "setarch i386 " if self.settings.arch == "x86" else ""
-
-                run_in_src("%s ./config %s %s" % (m32_pref, config_options_string, m32_suff))
+                m32_pref = "setarch i386" if self.settings.arch == "x86" else ""
+                config_line = "%s ./config -fPIC %s %s" % (m32_pref, config_options_string, m32_suff)
+                self.output.warn(config_line)
+                run_in_src(config_line)
                 run_in_src("make depend")
                 self.output.warn("----------MAKE OPENSSL %s-------------" % self.version)
                 run_in_src("make")
