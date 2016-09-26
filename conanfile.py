@@ -50,7 +50,7 @@ class OpenSSLConan(ConanFile):
             tools.download(self.source_tgz, "openssl.tar.gz")
             tools.unzip("openssl.tar.gz", ".")
 
-        tools.check_sha256("openssl.tar.gz", "1d4007e53aad94a5b2002fe045ee7bb0b3d98f1a47f8b2bc851dcd1c74332919")
+        tools.check_sha256("openssl.tar.gz", "9287487d11c9545b6efb287cdb70535d4e9b284dd10d51441d9b9963d000de6f")
         os.unlink("openssl.tar.gz")
 
     def config(self):
