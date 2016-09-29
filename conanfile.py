@@ -1,8 +1,28 @@
 from conans import ConanFile
 from conans import tools
-from conans.tools import replace_in_file
 import os
 
+def decode_text(text):
+    # REMOVE IN CONAN 0.13.0, THERE WAS A PROBLEM WITH DECODING
+    decoders = ["utf-8", "Windows-1252"]
+    for decoder in decoders:
+        try:
+            return text.decode(decoder, "ignore")
+        except UnicodeDecodeError:
+            continue
+    logger.warn("can't decode %s" % str(text))
+    return text.decode("utf-8", "ignore")  # Ignore not compatible characters
+
+
+def replace_in_file(file_path, search, replace):
+    # REMOVE IN CONAN 0.13.0, THERE WAS A PROBLEM WITH DECODING
+    # USE tools.replace_in_file
+    with open(file_path, 'rb') as content_file:
+        content = decode_text(content_file.read())
+        content = content.replace(search, replace)
+
+    with open(file_path, 'wb') as handle:
+        handle.write(content.encode("utf8", "ignore"))
 
 class OpenSSLConan(ConanFile):
     name = "OpenSSL"
@@ -80,7 +100,7 @@ class OpenSSLConan(ConanFile):
     @property
     def subfolder(self):
         return "openssl-%s" % self.version
-
+    
     def build(self):
         '''
             For Visual Studio (tried with 2010) compiling need:
@@ -94,7 +114,6 @@ class OpenSSLConan(ConanFile):
         '''
 
         config_options_string = ""
-
         if self.deps_cpp_info.include_paths:
             include_path = self.deps_cpp_info["zlib"].include_paths[0]
             if self.settings.os == "Windows":
