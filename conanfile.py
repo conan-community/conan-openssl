@@ -213,12 +213,13 @@ class OpenSSLConan(ConanFile):
                     os.rename(old, new)
         
         def mingw_make(config_options_string):
+            # NOT WORKING, PLEASE, ANY HELP WOULD BE GREAT.
+            # WITH THE MSYS TOOLS IN THE PATH IT RUNS MAKE BUT IT FAILS
             suffix = "64" if self.settings.arch == "x86_64" else ""
             command = "perl Configure mingw%s %s" % (suffix, config_options_string)
             run_in_src(command, show_output=True)
             self.output.warn("----------MAKE OPENSSL %s-------------" % self.version)
-            run_in_src("mingw32-make depend", show_output=True)
-            run_in_src("mingw32-make", show_output=True)
+            run_in_src("make", show_output=True)
 
         if self.settings.os == "Linux" or self.settings.os == "Macos":
             unix_make(config_options_string)
