@@ -6,7 +6,7 @@ language: python
 env:
   global:
     - CONAN_UPLOAD=1
-    - CONAN_REFERENCE="OpenSSL/1.0.2h"
+    - CONAN_REFERENCE="OpenSSL/1.0.2i"
     - CONAN_USERNAME="lasote"
     - CONAN_CHANNEL="ci"
     - CONAN_TOTAL_PAGES=2

@@ -1,12 +1,32 @@
 from conans import ConanFile
 from conans import tools
-from conans.tools import replace_in_file
 import os
 
+def decode_text(text):
+    # REMOVE IN CONAN 0.13.0, THERE WAS A PROBLEM WITH DECODING
+    decoders = ["utf-8", "Windows-1252"]
+    for decoder in decoders:
+        try:
+            return text.decode(decoder, "ignore")
+        except UnicodeDecodeError:
+            continue
+    logger.warn("can't decode %s" % str(text))
+    return text.decode("utf-8", "ignore")  # Ignore not compatible characters
+
+
+def replace_in_file(file_path, search, replace):
+    # REMOVE IN CONAN 0.13.0, THERE WAS A PROBLEM WITH DECODING
+    # USE tools.replace_in_file
+    with open(file_path, 'rb') as content_file:
+        content = decode_text(content_file.read())
+        content = content.replace(search, replace)
+
+    with open(file_path, 'wb') as handle:
+        handle.write(content.encode("utf8", "ignore"))
 
 class OpenSSLConan(ConanFile):
     name = "OpenSSL"
-    version = "1.0.2h"
+    version = "1.0.2i"
     settings = "os", "compiler", "arch", "build_type"
     url="http://github.com/lasote/conan-openssl"
     # https://github.com/openssl/openssl/blob/OpenSSL_1_0_2c/INSTALL
@@ -50,7 +70,7 @@ class OpenSSLConan(ConanFile):
             tools.download(self.source_tgz, "openssl.tar.gz")
             tools.unzip("openssl.tar.gz", ".")
 
-        tools.check_sha256("openssl.tar.gz", "1d4007e53aad94a5b2002fe045ee7bb0b3d98f1a47f8b2bc851dcd1c74332919")
+        tools.check_sha256("openssl.tar.gz", "9287487d11c9545b6efb287cdb70535d4e9b284dd10d51441d9b9963d000de6f")
         os.unlink("openssl.tar.gz")
 
     def config(self):
@@ -80,7 +100,7 @@ class OpenSSLConan(ConanFile):
     @property
     def subfolder(self):
         return "openssl-%s" % self.version
-
+    
     def build(self):
         '''
             For Visual Studio (tried with 2010) compiling need:
@@ -94,7 +114,6 @@ class OpenSSLConan(ConanFile):
         '''
 
         config_options_string = ""
-
         if self.deps_cpp_info.include_paths:
             include_path = self.deps_cpp_info["zlib"].include_paths[0]
             if self.settings.os == "Windows":
@@ -192,11 +211,22 @@ class OpenSSLConan(ConanFile):
             for old, new in renames.iteritems():
                 if os.path.exists(old):
                     os.rename(old, new)
+        
+        def mingw_make(config_options_string):
+            # NOT WORKING, PLEASE, ANY HELP WOULD BE GREAT.
+            # WITH THE MSYS TOOLS IN THE PATH IT RUNS MAKE BUT IT FAILS
+            suffix = "64" if self.settings.arch == "x86_64" else ""
+            command = "perl Configure mingw%s %s" % (suffix, config_options_string)
+            run_in_src(command, show_output=True)
+            self.output.warn("----------MAKE OPENSSL %s-------------" % self.version)
+            run_in_src("make", show_output=True)
 
         if self.settings.os == "Linux" or self.settings.os == "Macos":
             unix_make(config_options_string)
-        elif self.settings.os == "Windows":
+        elif self.settings.compiler == "Visual Studio":
             windows_make(config_options_string)
+        elif self.settings.os == "Windows" and self.settings.compiler == "gcc":
+            mingw_make(config_options_string)
 
         self.output.info("----------BUILD END-------------")
         return
@@ -225,9 +255,9 @@ class OpenSSLConan(ConanFile):
         self.copy(pattern="*.dll", dst="bin", src="binaries/bin", keep_path=False)
 
     def package_info(self):
-        if self.settings.os == "Windows":
+        if self.settings.compiler == "Visual Studio":
             suffix = str(self.settings.compiler.runtime)
-            self.cpp_info.libs = ["ssleay32" + suffix, "libeay32" + suffix, "crypt32.lib", "msi.lib"]
+            self.cpp_info.libs = ["ssleay32" + suffix, "libeay32" + suffix, "crypt32", "msi"]
         elif self.settings.os == "Linux":
             self.cpp_info.libs = ["ssl", "crypto", "dl"]
         else:
