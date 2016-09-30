@@ -211,11 +211,21 @@ class OpenSSLConan(ConanFile):
             for old, new in renames.iteritems():
                 if os.path.exists(old):
                     os.rename(old, new)
+        
+        def mingw_make(config_options_string):
+            suffix = "64" if self.settings.arch == "x86_64" else ""
+            command = "perl Configure mingw%s %s" % (suffix, config_options_string)
+            run_in_src(command, show_output=True)
+            self.output.warn("----------MAKE OPENSSL %s-------------" % self.version)
+            run_in_src("mingw32-make depend", show_output=True)
+            run_in_src("mingw32-make", show_output=True)
 
         if self.settings.os == "Linux" or self.settings.os == "Macos":
             unix_make(config_options_string)
-        elif self.settings.os == "Windows":
+        elif self.settings.compiler == "Visual Studio":
             windows_make(config_options_string)
+        elif self.settings.os == "Windows" and self.settings.compiler == "gcc":
+            mingw_make(config_options_string)
 
         self.output.info("----------BUILD END-------------")
         return
@@ -244,7 +254,7 @@ class OpenSSLConan(ConanFile):
         self.copy(pattern="*.dll", dst="bin", src="binaries/bin", keep_path=False)
 
     def package_info(self):
-        if self.settings.os == "Windows":
+        if self.settings.compiler == "Visual Studio":
             suffix = str(self.settings.compiler.runtime)
             self.cpp_info.libs = ["ssleay32" + suffix, "libeay32" + suffix, "crypt32", "msi"]
         elif self.settings.os == "Linux":
