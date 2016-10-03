@@ -142,7 +142,7 @@ class OpenSSLConan(ConanFile):
         def run_in_src(command, show_output=False):
             command = 'cd openssl-%s && %s' % (self.version, command)
             if not show_output and self.settings.os != "Windows":
-                command += ' | while read line; do echo -n "."; done'
+                command += ' | while read line; do printf "%c" .; done'
             self.run(command)
             self.output.writeln(" ")
 
