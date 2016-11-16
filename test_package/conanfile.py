@@ -14,7 +14,7 @@ class DefaultNameConan(ConanFile):
     name = "DefaultName"
     version = "0.1"
     settings = "os", "compiler", "arch", "build_type"
-    requires = "OpenSSL/1.0.2i@%s/%s" % (username, channel)
+    requires = "OpenSSL/1.0.2j@%s/%s" % (username, channel)
     generators = "cmake"
 
     def build(self):
