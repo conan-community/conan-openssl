@@ -201,10 +201,12 @@ class OpenSSLConan(ConanFile):
             replace_in_file("./openssl-%s/ms/nt.mak" % self.version, "/MTd ", "/%s " % runtime)
 
             self.output.warn(os.curdir)
+            vcvars = tools.vcvars_command(self.settings)
+            vcvars = "%s && " % vcvars if vcvars else " "
             make_command = "nmake -f ms\\ntdll.mak" if self.options.shared else "nmake -f ms\\nt.mak "
             self.output.warn("----------MAKE OPENSSL %s-------------" % self.version)
-            run_in_src(make_command)
-            run_in_src("%s install" % make_command)
+            run_in_src("%s%s" % (vcvars, make_command))
+            run_in_src("%s%s install" % (vcvars, make_command))
             # Rename libs with the arch
             renames = {"./binaries/lib/libeay32.lib": "./binaries/lib/libeay32%s.lib" % runtime,
                        "./binaries/lib/ssleay32.lib": "./binaries/lib/ssleay32%s.lib" % runtime}
