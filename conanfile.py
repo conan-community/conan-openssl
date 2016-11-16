@@ -2,27 +2,6 @@ from conans import ConanFile
 from conans import tools
 import os
 
-def decode_text(text):
-    # REMOVE IN CONAN 0.13.0, THERE WAS A PROBLEM WITH DECODING
-    decoders = ["utf-8", "Windows-1252"]
-    for decoder in decoders:
-        try:
-            return text.decode(decoder, "ignore")
-        except UnicodeDecodeError:
-            continue
-    logger.warn("can't decode %s" % str(text))
-    return text.decode("utf-8", "ignore")  # Ignore not compatible characters
-
-
-def replace_in_file(file_path, search, replace):
-    # REMOVE IN CONAN 0.13.0, THERE WAS A PROBLEM WITH DECODING
-    # USE tools.replace_in_file
-    with open(file_path, 'rb') as content_file:
-        content = decode_text(content_file.read())
-        content = content.replace(search, replace)
-
-    with open(file_path, 'wb') as handle:
-        handle.write(content.encode("utf8", "ignore"))
 
 class OpenSSLConan(ConanFile):
     name = "OpenSSL"
@@ -129,8 +108,8 @@ class OpenSSLConan(ConanFile):
                                                                 self.deps_cpp_info["electric-fence"].include_paths[0],
                                                                 libs)
             else:
-                replace_in_file("./openssl-%s/Configure" % self.version, "::-lefence::", "::")
-                replace_in_file("./openssl-%s/Configure" % self.version, "::-lefence ", "::")
+                tools.replace_in_file("./openssl-%s/Configure" % self.version, "::-lefence::", "::")
+                tools.replace_in_file("./openssl-%s/Configure" % self.version, "::-lefence ", "::")
             self.output.warn("=====> Options: %s" % config_options_string)
 
         for option_name in self.options.values.fields:
@@ -171,7 +150,7 @@ class OpenSSLConan(ConanFile):
                 # DYNLIBS IDS AND OTHER DYNLIB DEPS WITHOUT PATH, JUST THE LIBRARY NAME
                 old_str = 'SHAREDFLAGS="$$SHAREDFLAGS -install_name $(INSTALLTOP)/$(LIBDIR)/$$SHLIB$'
                 new_str = 'SHAREDFLAGS="$$SHAREDFLAGS -install_name $$SHLIB$'
-                replace_in_file("./openssl-%s/Makefile.shared" % self.version, old_str, new_str)
+                tools.replace_in_file("./openssl-%s/Makefile.shared" % self.version, old_str, new_str)
                 self.output.warn("----------MAKE OPENSSL %s-------------" % self.version)
                 run_in_src("make")
 
@@ -195,10 +174,10 @@ class OpenSSLConan(ConanFile):
                 run_in_src("ms\do_ms")
             runtime = self.settings.compiler.runtime
             # Replace runtime in ntdll.mak and nt.mak
-            replace_in_file("./openssl-%s/ms/ntdll.mak" % self.version, "/MD ", "/%s " % runtime)
-            replace_in_file("./openssl-%s/ms/nt.mak" % self.version, "/MT ", "/%s " % runtime)
-            replace_in_file("./openssl-%s/ms/ntdll.mak" % self.version, "/MDd ", "/%s " % runtime)
-            replace_in_file("./openssl-%s/ms/nt.mak" % self.version, "/MTd ", "/%s " % runtime)
+            tools.replace_in_file("./openssl-%s/ms/ntdll.mak" % self.version, "/MD ", "/%s " % runtime)
+            tools.replace_in_file("./openssl-%s/ms/nt.mak" % self.version, "/MT ", "/%s " % runtime)
+            tools.replace_in_file("./openssl-%s/ms/ntdll.mak" % self.version, "/MDd ", "/%s " % runtime)
+            tools.replace_in_file("./openssl-%s/ms/nt.mak" % self.version, "/MTd ", "/%s " % runtime)
 
             self.output.warn(os.curdir)
             vcvars = tools.vcvars_command(self.settings)
@@ -264,4 +243,3 @@ class OpenSSLConan(ConanFile):
             self.cpp_info.libs = ["ssl", "crypto", "dl"]
         else:
             self.cpp_info.libs = ["ssl", "crypto"]
-
