@@ -28,8 +28,38 @@ env:
     - CONAN_GCC_VERSIONS=5.3 CONAN_CURRENT_PAGE=1 CONAN_USE_DOCKER=1
     - CONAN_GCC_VERSIONS=5.3 CONAN_CURRENT_PAGE=2 CONAN_USE_DOCKER=1
 
+    - CONAN_GCC_VERSIONS=5.4 CONAN_CURRENT_PAGE=1 CONAN_USE_DOCKER=1
+    - CONAN_GCC_VERSIONS=5.4 CONAN_CURRENT_PAGE=2 CONAN_USE_DOCKER=1
+
 matrix:
    include:
+       - os: osx 
+         osx_image: xcode8.2 # apple-clang 8.2
+         language: generic
+         env: CONAN_CURRENT_PAGE=1
+       - os: osx 
+         osx_image: xcode8.2 # apple-clang 8.2
+         language: generic
+         env: CONAN_CURRENT_PAGE=2
+ 
+       - os: osx 
+         osx_image: xcode8.1 # apple-clang 8.1
+         language: generic
+         env: CONAN_CURRENT_PAGE=1
+       - os: osx 
+         osx_image: xcode8.1 # apple-clang 8.1
+         language: generic
+         env: CONAN_CURRENT_PAGE=2
+
+       - os: osx 
+         osx_image: xcode8 # apple-clang 8.0
+         language: generic
+         env: CONAN_CURRENT_PAGE=1
+       - os: osx 
+         osx_image: xcode8 # apple-clang 8.0
+         language: generic
+         env: CONAN_CURRENT_PAGE=2
+
        - os: osx 
          osx_image: xcode7.3 # apple-clang 7.3
          language: generic
