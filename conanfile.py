@@ -5,7 +5,7 @@ import os
 
 class OpenSSLConan(ConanFile):
     name = "OpenSSL"
-    version = "1.0.2i"
+    version = "1.0.2k"
     settings = "os", "compiler", "arch", "build_type"
     url = "http://github.com/lasote/conan-openssl"
     license = "The current OpenSSL licence is an 'Apache style' license: https://www.openssl.org/source/license.html"
@@ -52,7 +52,7 @@ class OpenSSLConan(ConanFile):
             tools.download(self.source_tgz, "openssl.tar.gz")
             tools.unzip("openssl.tar.gz", ".")
 
-        tools.check_sha256("openssl.tar.gz", "9287487d11c9545b6efb287cdb70535d4e9b284dd10d51441d9b9963d000de6f")
+        tools.check_sha256("openssl.tar.gz", "6b3977c61f2aedf0f96367dcfb5c6e578cf37e7b8d913b4ecb6643c3cb88d8c0")
         os.unlink("openssl.tar.gz")
 
     def config_options(self):
@@ -70,7 +70,7 @@ class OpenSSLConan(ConanFile):
                 del self.requires["electric-fence"]
 
         if not self.options.no_zlib:
-            self.requires.add("zlib/1.2.8@lasote/stable", private=False)
+            self.requires.add("zlib/1.2.11@lasote/stable", private=False)
         else:
             if "zlib" in self.requires:
                 del self.requires["zlib"]
