@@ -56,21 +56,24 @@ class OpenSSLConan(ConanFile):
         os.unlink("openssl.tar.gz")
 
     def config_options(self):
-        self.options["electric-fence"].shared = False
+        if not self.options.no_electric_fence and self.settings.os == "Linux":
+            self.options["electric-fence"].shared = self.options.shared
         if not self.options.no_zlib:
             self.options["zlib"].shared = self.options.zlib_dynamic
 
     def configure(self):
         del self.settings.compiler.libcxx
 
+    def requirements(self):
         if not self.options.no_electric_fence and self.settings.os == "Linux":
-            self.requires.add("electric-fence/2.2.0@lasote/stable", private=True)
+            private = False if self.options.shared else True
+            self.requires.add("electric-fence/2.2.0@lasote/stable", private=private)
         else:
             if "electric-fence" in self.requires:
                 del self.requires["electric-fence"]
 
         if not self.options.no_zlib:
-            self.requires.add("zlib/1.2.11@lasote/stable", private=False)
+            self.requires.add("zlib/1.2.8@lasote/stable", private=False)
         else:
             if "zlib" in self.requires:
                 del self.requires["zlib"]
@@ -84,10 +87,8 @@ class OpenSSLConan(ConanFile):
             For Visual Studio (tried with 2010) compiling need:
              - perl: http://www.activestate.com/activeperl/downloads
              - nasm: http://www.nasm.us/
-
             Put perl and nasm bin folder in USER PATH (not system path, so the visual 2010 command system symbol can find it)
             Open the visual 2010 command system symbol and run conan.
-
             Here are good page explaining it: http://hostagebrain.blogspot.com.es/2015/04/build-openssl-on-windows.html
         """
         config_options_string = ""
