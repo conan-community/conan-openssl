@@ -3,12 +3,16 @@
 #include "openssl/md5.h"
 #include "openssl/crypto.h"
 #include "zlib.h"
- 
+#include <openssl/ssl.h>
+
+
 int main()
 {
     unsigned char digest[MD5_DIGEST_LENGTH];
     char string[] = "happy";
-    
+
+    SSL_library_init();
+
     MD5((unsigned char*)&string, strlen(string), (unsigned char*)&digest);    
  
     char mdString[33];
