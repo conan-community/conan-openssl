@@ -13,14 +13,15 @@ environment:
     CONAN_UPLOAD: "https://api.bintray.com/conan/lasote/conan-repo"
     CONAN_STABLE_BRANCH_PATTERN: "release/*"
     CONAN_TOTAL_PAGES: 2
+    CONAN_UPLOAD_ONLY_WHEN_STABLE: 1 # Will only upload when the branch matches "release/*"
 
     matrix:
         - MINGW_CONFIGURATIONS: "4.9@x86_64@seh@posix"
           CONAN_CURRENT_PAGE: 1
-          CONAN_BASH_PATH: "C:\msys64\usr\bin\bash"
+          CONAN_BASH_PATH: "C:\\msys64\\usr\\bin\\bash"
         - MINGW_CONFIGURATIONS: "4.9@x86_64@seh@posix"
           CONAN_CURRENT_PAGE: 2
-          CONAN_BASH_PATH: "C:\msys64\usr\bin\bash"
+          CONAN_BASH_PATH: "C:\\msys64\\usr\\bin\\bash"
 
         - APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2015
           CONAN_VISUAL_VERSIONS: 12
