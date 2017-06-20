@@ -35,7 +35,7 @@ class OpenSSLConan(ConanFile):
                "no_sha": [True, False]}
     default_options = "=False\n".join(options.keys()) + "=False"
 
-    exports = "*Find*cmake"
+    exports = "*.cmake"
 
     # When a new version is available they move the tar.gz to old/ location
     source_tgz = "https://www.openssl.org/source/openssl-%s.tar.gz" % version
@@ -206,7 +206,7 @@ class OpenSSLConan(ConanFile):
             tools.run_in_windows_bash(self, "make")
 
     def package(self):
-        self.copy("*Find*cmake", ".", ".")
+        self.copy("*.cmake", ".", ".")
         # Copy the license files
         self.copy("*license*", dst="licenses", ignore_case=True, keep_path=False)
         self.copy(pattern="*applink.c", dst="include/openssl/", keep_path=False)
