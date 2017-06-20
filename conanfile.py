@@ -1,17 +1,17 @@
 from conans import ConanFile
-from conans import tools, AutoToolsBuildEnvironment
+from conans import tools
 import os
 
 
 class OpenSSLConan(ConanFile):
     name = "OpenSSL"
-    version = "1.0.2k"
+    version = "1.0.2l"
     settings = "os", "compiler", "arch", "build_type"
     url = "http://github.com/lasote/conan-openssl"
     license = "The current OpenSSL licence is an 'Apache style' license: https://www.openssl.org/source/license.html"
     description = "OpenSSL is an open source project that provides a robust, commercial-grade, and full-featured " \
                   "toolkit for the Transport Layer Security (TLS) and Secure Sockets Layer (SSL) protocols"
-    # https://github.com/openssl/openssl/blob/OpenSSL_1_0_2c/INSTALL
+    # https://github.com/openssl/openssl/blob/OpenSSL_1_0_2l/INSTALL
     options = {"no_threads": [True, False],
                "no_electric_fence": [True, False],
                "no_zlib": [True, False],
@@ -36,9 +36,9 @@ class OpenSSLConan(ConanFile):
                "no_sha": [True, False]}
     default_options = "=False\n".join(options.keys()) + "=False"
 
-    exports = ("win_bin/*", "readme.txt", "FindOpenSSL.cmake")
+    exports = "*Find*cmake"
 
-    # When a new version is avaiable they move the tar.gz to old/ location
+    # When a new version is available they move the tar.gz to old/ location
     source_tgz = "https://www.openssl.org/source/openssl-%s.tar.gz" % version
     source_tgz_old = "https://www.openssl.org/source/old/1.0.2/openssl-%s.tar.gz" % version
     counter_config = 0
@@ -47,12 +47,12 @@ class OpenSSLConan(ConanFile):
         self.output.info("Downloading %s" % self.source_tgz)
         try:
             tools.download(self.source_tgz_old, "openssl.tar.gz")
-            tools.unzip("openssl.tar.gz", ".")
+            tools.unzip("openssl.tar.gz")
         except:
             tools.download(self.source_tgz, "openssl.tar.gz")
-            tools.unzip("openssl.tar.gz", ".")
+            tools.unzip("openssl.tar.gz")
 
-        tools.check_sha256("openssl.tar.gz", "6b3977c61f2aedf0f96367dcfb5c6e578cf37e7b8d913b4ecb6643c3cb88d8c0")
+        tools.check_sha256("openssl.tar.gz", "ce07195b659e75f4e1db43552860070061f156a98bb37b672b101ba6e3ddf30c")
         os.unlink("openssl.tar.gz")
 
     def config_options(self):
@@ -73,7 +73,7 @@ class OpenSSLConan(ConanFile):
                 del self.requires["electric-fence"]
 
         if not self.options.no_zlib:
-            self.requires.add("zlib/1.2.8@lasote/stable", private=False)
+            self.requires.add("zlib/1.2.11@conan/stable", private=False)
         else:
             if "zlib" in self.requires:
                 del self.requires["zlib"]
@@ -178,12 +178,12 @@ class OpenSSLConan(ConanFile):
         self.run_in_src(whole_command)
 
         if self.options.no_asm:
-            self.run_in_src("ms\do_nasm")
+            self.run_in_src(r"ms\do_nasm")
 
         if arch == "64A":
-            self.run_in_src("ms\do_win64a")
+            self.run_in_src(r"ms\do_win64a")
         else:
-            self.run_in_src("ms\do_ms")
+            self.run_in_src(r"ms\do_ms")
         runtime = self.settings.compiler.runtime
         # Replace runtime in ntdll.mak and nt.mak
         tools.replace_in_file("./openssl-%s/ms/ntdll.mak" % self.version, "/MD ", "/%s " % runtime)
@@ -221,7 +221,9 @@ class OpenSSLConan(ConanFile):
             tools.run_in_windows_bash(self, "make")
 
     def package(self):
-        self.copy("FindOpenSSL.cmake", ".", ".")
+        self.copy("*Find*cmake", ".", ".")
+        # Copy the license files
+        self.copy("*license*", dst="licenses", ignore_case=True, keep_path=False)
         self.copy(pattern="*applink.c", dst="include/openssl/", keep_path=False)
         if self.settings.os == "Windows" and self.settings.compiler == "Visual Studio":
             self._copy_visual_binaries()

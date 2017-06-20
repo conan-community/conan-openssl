@@ -6,7 +6,7 @@
 
 [Conan.io](https://conan.io) package for OpenSSL library
 
-The packages generated with this **conanfile** can be found in [conan.io](https://conan.io/source/OpenSSL/1.0.2k/lasote/stable1.2.8/lasote/stable).
+The packages generated with this **conanfile** can be found in [conan.io](https://conan.io/source/OpenSSL/1.0.2l/lasote/stable1.2.8/lasote/stable).
 
 ## Build packages
 
@@ -16,23 +16,23 @@ Download conan client from [Conan.io](https://conan.io) and run:
     
 ## Upload packages to server
 
-    $ conan upload OpenSSL/1.0.2k@lasote/stable --all
+    $ conan upload OpenSSL/1.0.2l@lasote/stable --all
     
 ## Reuse the packages
 
 ### Basic setup
 
-    $ conan install OpenSSL/1.0.2k@lasote/stable
+    $ conan install OpenSSL/1.0.2l@lasote/stable
     
 ### Project setup
 
 If you handle multiple dependencies in your project is better to add a *conanfile.txt*
     
     [requires]
-    OpenSSL/1.0.2k@lasote/stable
+    OpenSSL/1.0.2l@lasote/stable
 
     [options]
-    OpenSSL:shared=true # false
+    OpenSSL:shared=false # true
     # Take a look for all available options in conanfile.py
     
     [generators]
