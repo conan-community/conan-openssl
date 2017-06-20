@@ -13,7 +13,6 @@ class OpenSSLConan(ConanFile):
                   "toolkit for the Transport Layer Security (TLS) and Secure Sockets Layer (SSL) protocols"
     # https://github.com/openssl/openssl/blob/OpenSSL_1_0_2l/INSTALL
     options = {"no_threads": [True, False],
-               "no_electric_fence": [True, False],
                "no_zlib": [True, False],
                "zlib_dynamic": [True, False],
                "shared": [True, False],
@@ -56,8 +55,6 @@ class OpenSSLConan(ConanFile):
         os.unlink("openssl.tar.gz")
 
     def config_options(self):
-        if not self.options.no_electric_fence and self.settings.os == "Linux":
-            self.options["electric-fence"].shared = self.options.shared
         if not self.options.no_zlib:
             self.options["zlib"].shared = self.options.zlib_dynamic
 
@@ -65,13 +62,6 @@ class OpenSSLConan(ConanFile):
         del self.settings.compiler.libcxx
 
     def requirements(self):
-        if not self.options.no_electric_fence and self.settings.os == "Linux":
-            private = False if self.options.shared else True
-            self.requires.add("electric-fence/2.2.0@lasote/stable", private=private)
-        else:
-            if "electric-fence" in self.requires:
-                del self.requires["electric-fence"]
-
         if not self.options.no_zlib:
             self.requires.add("zlib/1.2.11@conan/stable", private=False)
         else:
@@ -101,15 +91,9 @@ class OpenSSLConan(ConanFile):
                 lib_path = self.deps_cpp_info["zlib"].lib_paths[0]  # Just path, linux will find the right file
             config_options_string += ' --with-zlib-include="%s"' % include_path
             config_options_string += ' --with-zlib-lib="%s"' % lib_path
-            # EFENCE LINK
-            if "electric-fence" in self.requires:
-                libs = " ".join(["-l%s" % lib for lib in self.deps_cpp_info["electric-fence"].libs])
-                config_options_string += ' -L"%s" -I"%s" %s' % (self.deps_cpp_info["electric-fence"].lib_paths[0],
-                                                                self.deps_cpp_info["electric-fence"].include_paths[0],
-                                                                libs)
-            else:
-                tools.replace_in_file("./openssl-%s/Configure" % self.version, "::-lefence::", "::")
-                tools.replace_in_file("./openssl-%s/Configure" % self.version, "::-lefence ", "::")
+
+            tools.replace_in_file("./openssl-%s/Configure" % self.version, "::-lefence::", "::")
+            tools.replace_in_file("./openssl-%s/Configure" % self.version, "::-lefence ", "::")
             self.output.warn("=====> Options: %s" % config_options_string)
 
         for option_name in self.options.values.fields:
@@ -140,7 +124,8 @@ class OpenSSLConan(ConanFile):
     def linux_build(self, config_options_string):
         m32_suff = " -m32" if self.settings.arch == "x86" else ""
         if self.settings.build_type == "Debug":
-            config_options_string = "-d " + config_options_string
+            config_options_string = "-d no-asm -g3 -O0 -fno-omit-frame-pointer " \
+                                    "-fno-inline-functions" + config_options_string
 
         m32_pref = "setarch i386" if self.settings.arch == "x86" else ""
         config_line = "%s ./config -fPIC %s %s" % (m32_pref, config_options_string, m32_suff)
