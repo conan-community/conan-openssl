@@ -8,8 +8,6 @@ env:
      - CONAN_UPLOAD: "https://api.bintray.com/conan/lasote/conan-repo"
      - CONAN_STABLE_BRANCH_PATTERN: "release/*"
      - CONAN_TOTAL_PAGES: 2
-     # REMOVE THIS WHEN MERGED TO CONAN-CENTER!
-     - REMOTES: "https://api.bintray.com/conan/lasote/conan-repo"
 
 linux: &linux
    os: linux
