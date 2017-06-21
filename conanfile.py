@@ -164,7 +164,9 @@ class OpenSSLConan(ConanFile):
         self.output.warn(whole_command)
         self.run_in_src(whole_command)
 
-        if not self.options.no_asm:
+        if not self.options.no_asm and self.settings.arch == "x86":
+            # The 64 bits builds do not require the do_nasm
+            # http://p-nand-q.com/programming/windows/building_openssl_with_visual_studio_2013.html
             self.run_in_src(r"%s && ms\do_nasm" % vcvars)
         else:
             if arch == "64A":
