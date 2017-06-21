@@ -41,8 +41,8 @@ class OpenSSLConan(ConanFile):
     def build_requirements(self):
         # useful for example for conditional build_requires
         if self.settings.os == "Windows":
-            self.build_requires("strawberryperl/5.26.0@conan/%s" % self.channel)
-            self.build_requires("nasm/2.13.01@conan/%s" % self.channel)
+            self.build_requires("strawberryperl/5.26.0@conan/stable")
+            self.build_requires("nasm/2.13.01@conan/stable")
 
     def source(self):
         self.output.info("Downloading %s" % self.source_tgz)
