@@ -8,7 +8,7 @@ environment:
     CONAN_REFERENCE: "OpenSSL/1.0.2l"
     CONAN_USERNAME: "conan"
     CONAN_LOGIN_USERNAME: "lasote"
-    CONAN_CHANNEL: "stable"
+    CONAN_CHANNEL: "testing"
     VS150COMNTOOLS: "C:\\Program Files (x86)\\Microsoft Visual Studio\\2017\\Community\\Common7\\Tools\\"
     CONAN_UPLOAD: "https://api.bintray.com/conan/lasote/conan-repo"
     CONAN_STABLE_BRANCH_PATTERN: "release/*"
