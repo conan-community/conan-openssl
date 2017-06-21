@@ -166,11 +166,11 @@ class OpenSSLConan(ConanFile):
 
         if not self.options.no_asm:
             self.run_in_src(r"%s && ms\do_nasm" % vcvars)
-
-        if arch == "64A":
-            self.run_in_src(r"%s && ms\do_win64a" % vcvars)
         else:
-            self.run_in_src(r"%s && ms\do_ms" % vcvars)
+            if arch == "64A":
+                self.run_in_src(r"%s && ms\do_win64a" % vcvars)
+            else:
+                self.run_in_src(r"%s && ms\do_ms" % vcvars)
         runtime = self.settings.compiler.runtime
         # Replace runtime in ntdll.mak and nt.mak
         tools.replace_in_file("./openssl-%s/ms/ntdll.mak" % self.version, "/MD ", "/%s " % runtime)
