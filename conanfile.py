@@ -14,7 +14,6 @@ class OpenSSLConan(ConanFile):
     # https://github.com/openssl/openssl/blob/OpenSSL_1_0_2l/INSTALL
     options = {"no_threads": [True, False],
                "no_zlib": [True, False],
-               "zlib_dynamic": [True, False],
                "shared": [True, False],
                "no_asm": [True, False],
                "386": [True, False],
@@ -35,12 +34,15 @@ class OpenSSLConan(ConanFile):
                "no_sha": [True, False]}
     default_options = "=False\n".join(options.keys()) + "=False"
 
-    exports = "*.cmake"
-
     # When a new version is available they move the tar.gz to old/ location
     source_tgz = "https://www.openssl.org/source/openssl-%s.tar.gz" % version
     source_tgz_old = "https://www.openssl.org/source/old/1.0.2/openssl-%s.tar.gz" % version
-    counter_config = 0
+    
+    def build_requirements(self):
+        # useful for example for conditional build_requires
+        if self.settings.os == "Windows":
+            self.build_requires("strawberryperl/5.26.0@conan/%s" % self.channel)
+            self.build_requires("nasm/2.13.01@conan/%s" % self.channel)
 
     def source(self):
         self.output.info("Downloading %s" % self.source_tgz)
@@ -53,10 +55,6 @@ class OpenSSLConan(ConanFile):
 
         tools.check_sha256("openssl.tar.gz", "ce07195b659e75f4e1db43552860070061f156a98bb37b672b101ba6e3ddf30c")
         os.unlink("openssl.tar.gz")
-
-    def config_options(self):
-        if not self.options.no_zlib:
-            self.options["zlib"].shared = self.options.zlib_dynamic
 
     def configure(self):
         del self.settings.compiler.libcxx
@@ -83,18 +81,18 @@ class OpenSSLConan(ConanFile):
         """
         config_options_string = ""
         if self.deps_cpp_info.include_paths:
-            include_path = self.deps_cpp_info["zlib"].include_paths[0]
+            zlib_info = self.deps_cpp_info["zlib"]
+            include_path = zlib_info.include_paths[0]
             if self.settings.os == "Windows":
-                lib_path = self.deps_cpp_info["zlib"].lib_paths[0] + "/" + self.deps_cpp_info["zlib"].libs[
-                    0] + ".lib"  # Concrete lib file
+                lib_path = "%s/%s.lib" % (zlib_info.lib_paths[0], zlib_info.libs[0])
             else:
-                lib_path = self.deps_cpp_info["zlib"].lib_paths[0]  # Just path, linux will find the right file
+                lib_path = zlib_info.lib_paths[0]  # Just path, linux will find the right file
             config_options_string += ' --with-zlib-include="%s"' % include_path
             config_options_string += ' --with-zlib-lib="%s"' % lib_path
 
             tools.replace_in_file("./openssl-%s/Configure" % self.version, "::-lefence::", "::")
             tools.replace_in_file("./openssl-%s/Configure" % self.version, "::-lefence ", "::")
-            self.output.warn("=====> Options: %s" % config_options_string)
+            self.output.info("=====> Options: %s" % config_options_string)
 
         for option_name in self.options.values.fields:
             activated = getattr(self.options, option_name)
@@ -152,23 +150,27 @@ class OpenSSLConan(ConanFile):
         self.run_in_src("make")
 
     def visual_build(self, config_options_string):
+        self.run_in_src("perl --version")
+        
         self.output.warn("----------CONFIGURING OPENSSL FOR WINDOWS. %s-------------" % self.version)
         debug = "debug-" if self.settings.build_type == "Debug" else ""
         arch = "32" if self.settings.arch == "x86" else "64A"
         configure_type = debug + "VC-WIN" + arch
+        no_asm = "no-asm" if self.options.no_asm else ""
         # Will output binaries to ./binaries
-        config_command = "perl Configure %s no-asm --prefix=../binaries" % configure_type
+        vcvars = tools.vcvars_command(self.settings)
+        config_command = "%s && perl Configure %s %s --prefix=../binaries" % (vcvars, configure_type, no_asm)
         whole_command = "%s %s" % (config_command, config_options_string)
         self.output.warn(whole_command)
         self.run_in_src(whole_command)
 
-        if self.options.no_asm:
-            self.run_in_src(r"ms\do_nasm")
+        if not self.options.no_asm:
+            self.run_in_src(r"%s && ms\do_nasm" % vcvars)
 
         if arch == "64A":
-            self.run_in_src(r"ms\do_win64a")
+            self.run_in_src(r"%s && ms\do_win64a" % vcvars)
         else:
-            self.run_in_src(r"ms\do_ms")
+            self.run_in_src(r"%s && ms\do_ms" % vcvars)
         runtime = self.settings.compiler.runtime
         # Replace runtime in ntdll.mak and nt.mak
         tools.replace_in_file("./openssl-%s/ms/ntdll.mak" % self.version, "/MD ", "/%s " % runtime)
@@ -176,13 +178,10 @@ class OpenSSLConan(ConanFile):
         tools.replace_in_file("./openssl-%s/ms/ntdll.mak" % self.version, "/MDd ", "/%s " % runtime)
         tools.replace_in_file("./openssl-%s/ms/nt.mak" % self.version, "/MTd ", "/%s " % runtime)
 
-        self.output.warn(os.curdir)
-        vcvars = tools.vcvars_command(self.settings)
-        vcvars = "%s && " % vcvars if vcvars else " "
         make_command = "nmake -f ms\\ntdll.mak" if self.options.shared else "nmake -f ms\\nt.mak "
         self.output.warn("----------MAKE OPENSSL %s-------------" % self.version)
-        self.run_in_src("%s%s" % (vcvars, make_command))
-        self.run_in_src("%s%s install" % (vcvars, make_command))
+        self.run_in_src("%s && %s" % (vcvars, make_command))
+        self.run_in_src("%s && %s install" % (vcvars, make_command))
         # Rename libs with the arch
         renames = {"./binaries/lib/libeay32.lib": "./binaries/lib/libeay32%s.lib" % runtime,
                    "./binaries/lib/ssleay32.lib": "./binaries/lib/ssleay32%s.lib" % runtime}
@@ -206,7 +205,6 @@ class OpenSSLConan(ConanFile):
             tools.run_in_windows_bash(self, "make")
 
     def package(self):
-        self.copy("*.cmake", ".", ".")
         # Copy the license files
         self.copy("*license*", dst="licenses", ignore_case=True, keep_path=False)
         self.copy(pattern="*applink.c", dst="include/openssl/", keep_path=False)
@@ -229,11 +227,17 @@ class OpenSSLConan(ConanFile):
         self.copy(pattern="*.lib", dst="lib", src="binaries/lib", keep_path=False)
         self.copy(pattern="*.dll", dst="bin", src="binaries/bin", keep_path=False)
         self.copy(pattern="*.dll", dst="bin", src="binaries/bin", keep_path=False)
+        
+        suffix = str(self.settings.compiler.runtime)
+        lib_path = os.path.join(self.package_folder, "lib")
+        current_ssleay = os.path.join(lib_path, "ssleay32%s.lib" % suffix)
+        current_libeay = os.path.join(lib_path, "libeay32%s.lib" % suffix)
+        os.rename(current_ssleay, os.path.join(lib_path, "ssleay32.lib"))
+        os.rename(current_libeay, os.path.join(lib_path, "libeay32.lib"))
 
     def package_info(self):
         if self.settings.compiler == "Visual Studio":
-            suffix = str(self.settings.compiler.runtime)
-            self.cpp_info.libs = ["ssleay32" + suffix, "libeay32" + suffix, "crypt32", "msi"]
+            self.cpp_info.libs = ["ssleay32", "libeay32", "crypt32", "msi", "ws2_32"]
         elif self.settings.os == "Linux":
             self.cpp_info.libs = ["ssl", "crypto", "dl"]
         else:
