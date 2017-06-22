@@ -208,7 +208,7 @@ class OpenSSLConan(ConanFile):
 
     def package(self):
         # Copy the license files
-        self.copy("*license*", dst="licenses", ignore_case=True, keep_path=False)
+        self.copy("%s/LICENSE" % self.subfolder, keep_path=False)
         self.copy(pattern="*applink.c", dst="include/openssl/", keep_path=False)
         if self.settings.os == "Windows" and self.settings.compiler == "Visual Studio":
             self._copy_visual_binaries()
