@@ -6,13 +6,16 @@
 
 [Conan.io](https://conan.io) package for OpenSSL library
 
-The packages generated with this **conanfile** can be found in [conan.io](https://conan.io/source/OpenSSL/1.0.2l/lasote/stable1.2.8/lasote/stable).
+The packages generated with this **conanfile** can be found in [this bintray repository](https://bintray.com/conan-community/conan/OpenSSL:conan).
 
 ## Build packages
 
+Only necessary if you don't want to use the pre-compiled binaries, and you want to build your own packages from source.
+
 Download conan client from [Conan.io](https://conan.io) and run:
 
-    $ python build.py
+    $ conan test_package
+    $ conan test_package # use different settings, options or profiles 
     
 ## Upload packages to server
 
@@ -39,8 +42,8 @@ If you handle multiple dependencies in your project is better to add a *conanfil
     txt
     cmake
 
-Complete the installation of requirements for your project running:</small></span>
+Complete the installation of requirements for your project running:
 
     conan install .
 
-Project setup installs the library (and all his dependencies) and generates the files *conanbuildinfo.txt* and *conanbuildinfo.cmake* with all the paths and variables that you need to link with your dependencies.
+Project setup installs the library (and all its dependencies) and generates the files *conanbuildinfo.txt* and *conanbuildinfo.cmake* with all the paths and variables that you need to link with your dependencies.

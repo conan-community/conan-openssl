@@ -48,11 +48,9 @@ class OpenSSLConan(ConanFile):
         self.output.info("Downloading %s" % self.source_tgz)
         try:
             tools.download(self.source_tgz_old, "openssl.tar.gz")
-            tools.unzip("openssl.tar.gz")
         except:
             tools.download(self.source_tgz, "openssl.tar.gz")
-            tools.unzip("openssl.tar.gz")
-
+        tools.unzip("openssl.tar.gz")
         tools.check_sha256("openssl.tar.gz", "ce07195b659e75f4e1db43552860070061f156a98bb37b672b101ba6e3ddf30c")
         os.unlink("openssl.tar.gz")
 
@@ -61,10 +59,7 @@ class OpenSSLConan(ConanFile):
 
     def requirements(self):
         if not self.options.no_zlib:
-            self.requires.add("zlib/1.2.11@conan/stable", private=False)
-        else:
-            if "zlib" in self.requires:
-                del self.requires["zlib"]
+            self.requires("zlib/1.2.11@conan/stable")
 
     @property
     def subfolder(self):
@@ -80,7 +75,7 @@ class OpenSSLConan(ConanFile):
             Here are good page explaining it: http://hostagebrain.blogspot.com.es/2015/04/build-openssl-on-windows.html
         """
         config_options_string = ""
-        if self.deps_cpp_info.include_paths:
+        if "zlib" in self.deps_cpp_info.deps:
             zlib_info = self.deps_cpp_info["zlib"]
             include_path = zlib_info.include_paths[0]
             if self.settings.os == "Windows":
@@ -110,7 +105,6 @@ class OpenSSLConan(ConanFile):
             self.mingw_build(config_options_string)
 
         self.output.info("----------BUILD END-------------")
-        return
 
     def run_in_src(self, command, show_output=False):
         if not show_output and self.settings.os != "Windows":
@@ -212,8 +206,6 @@ class OpenSSLConan(ConanFile):
         self.copy(pattern="*applink.c", dst="include/openssl/", keep_path=False)
         if self.settings.os == "Windows" and self.settings.compiler == "Visual Studio":
             self._copy_visual_binaries()
-            if self.settings.compiler == "gcc":
-                self.copy("*.a", "lib", keep_path=False)
             self.copy(pattern="*.h", dst="include/openssl/", src="binaries/include/", keep_path=False)
         else:
             if self.options.shared:
