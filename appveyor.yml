@@ -17,6 +17,7 @@ environment:
 
     matrix:
         - MINGW_CONFIGURATIONS: "4.9@x86_64@seh@posix"
+          CONAN_BASH_PATH: "c:\\msys64\\usr\\bin\\bash"
         
         - APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2015
           CONAN_VISUAL_VERSIONS: 12
