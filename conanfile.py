@@ -197,7 +197,7 @@ class OpenSSLConan(ConanFile):
         with tools.chdir(self.subfolder):
             tools.run_in_windows_bash(self, config_line)
             self.output.warn("----------MAKE OPENSSL %s-------------" % self.version)
-            tools.run_in_windows_bash(self, "make depend")
+            # tools.run_in_windows_bash(self, "make depend")
             tools.run_in_windows_bash(self, "make")
 
     def package(self):
@@ -232,6 +232,8 @@ class OpenSSLConan(ConanFile):
     def package_info(self):
         if self.settings.compiler == "Visual Studio":
             self.cpp_info.libs = ["ssleay32", "libeay32", "crypt32", "msi", "ws2_32"]
+        elif self.settings.compiler == "gcc" and self.settings.os == "Windows":
+            self.cpp_info.libs = ["ssl", "crypto", "ws2_32"]
         elif self.settings.os == "Linux":
             self.cpp_info.libs = ["ssl", "crypto", "dl"]
         else:

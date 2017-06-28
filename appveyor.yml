@@ -16,7 +16,8 @@ environment:
     CONAN_UPLOAD_ONLY_WHEN_STABLE: 1 # Will only upload when the branch matches "release/*"
 
     matrix:
-
+        - MINGW_CONFIGURATIONS: "4.9@x86_64@seh@posix"
+        
         - APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2015
           CONAN_VISUAL_VERSIONS: 12
           CONAN_CURRENT_PAGE: 1
