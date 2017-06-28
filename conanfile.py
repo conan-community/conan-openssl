@@ -186,6 +186,7 @@ class OpenSSLConan(ConanFile):
                 os.rename(old, new)
 
     def mingw_build(self, config_options_string):
+        # https://netix.dl.sourceforge.net/project/msys2/Base/x86_64/msys2-x86_64-20161025.exe
         config_options_string = tools.unix_path(config_options_string)
         if self.settings.build_type == "Debug":
             config_options_string = "-d " + config_options_string
