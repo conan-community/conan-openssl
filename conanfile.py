@@ -1,4 +1,4 @@
-from conans import ConanFile
+from conans import ConanFile, AutoToolsBuildEnvironment
 from conans import tools
 import os
 
@@ -95,14 +95,16 @@ class OpenSSLConan(ConanFile):
                 self.output.info("Activated option! %s" % option_name)
                 config_options_string += " %s" % option_name.replace("_", "-")
 
-        if self.settings.os == "Linux":
-            self.linux_build(config_options_string)
+        if self.settings.os in ["Linux", "SunOS", "FreeBSD"]:
+            self.unix_build(config_options_string)
         elif self.settings.os == "Macos":
             self.osx_build(config_options_string)
         elif self.settings.compiler == "Visual Studio":
             self.visual_build(config_options_string)
         elif self.settings.os == "Windows" and self.settings.compiler == "gcc":
             self.mingw_build(config_options_string)
+        else:
+            raise Exception("Unsupported operating system: %s" % self.settings.os)
 
         self.output.info("----------BUILD END-------------")
 
@@ -113,14 +115,50 @@ class OpenSSLConan(ConanFile):
             self.run(command)
         self.output.writeln(" ")
 
-    def linux_build(self, config_options_string):
-        m32_suff = " -m32" if self.settings.arch == "x86" else ""
+    def unix_build(self, config_options_string):
+        env_build = AutoToolsBuildEnvironment(self)
+        extra_flags = ' '.join(env_build.flags)
+        target_prefix = ""
         if self.settings.build_type == "Debug":
-            config_options_string = "-d no-asm -g3 -O0 -fno-omit-frame-pointer " \
-                                    "-fno-inline-functions" + config_options_string
+            config_options_string = " no-asm" + config_options_string
+            extra_flags = extra_flags + " -O0"
+            target_prefix = "debug-"
+            if self.settings.compiler in ["apple-clang", "clang", "gcc"]:
+                extra_flags = extra_flags + " -g3 -fno-omit-frame-pointer " \
+                                            "-fno-inline-functions"
 
-        m32_pref = "setarch i386" if self.settings.arch == "x86" else ""
-        config_line = "%s ./config -fPIC %s %s" % (m32_pref, config_options_string, m32_suff)
+        if self.settings.os == "Linux":
+            if self.settings.arch == "x86":
+                target = "%slinux-generic32" % target_prefix
+            elif self.settings.arch == "x86_64":
+                target = "%slinux-x86_64" % target_prefix
+
+        elif self.settings.os == "SunOS":
+            if self.settings.compiler in ["apple-clang", "clang", "gcc"]:
+                suffix = "-gcc"
+            elif self.settings.compiler == "sun-cc":
+                suffix = "-cc"
+            else:
+                raise Exception("Unsupported compiler on SunOS: %s" % self.settings.compiler)
+
+            # OpenSSL has no debug profile for non sparcv9 machine
+            if self.settings.arch != "sparcv9":
+                target_prefix = "" 
+
+            if self.settings.arch in ["sparc", "x86"]:
+                target = "%ssolaris-%s%s" % (target_prefix, self.settings.arch, suffix)
+            elif self.settings.arch in ["sparcv9", "x86_64"]:
+                target = "%ssolaris64-%s%s" % (target_prefix, self.settings.arch, suffix)
+            else:
+                raise Exception("Unsupported arch on SunOS: %s" % self.settings.arch)
+
+        elif self.settings.os == "FreeBSD":
+            target = "%sBSD-%s" % (target_prefix, self.settings.arch)
+
+        else:
+            raise Exception("Unsupported operating system: %s" % self.settings.os)
+
+        config_line = "./Configure %s -fPIC %s %s" % (config_options_string, target, extra_flags)
         self.output.warn(config_line)
         self.run_in_src(config_line)
         self.run_in_src("make depend")
