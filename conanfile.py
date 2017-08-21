@@ -246,6 +246,16 @@ class OpenSSLConan(ConanFile):
         if self.settings.os == "Windows" and self.settings.compiler == "Visual Studio":
             self._copy_visual_binaries()
             self.copy(pattern="*.h", dst="include/openssl/", src="binaries/include/", keep_path=False)
+        elif self.settings.os == "Windows" and self.settings.compiler == "gcc":
+            self.copy(pattern="%s/include/*" % self.subfolder, dst="include/openssl/", keep_path=False)
+            if self.options.shared:
+                self.copy(pattern="%s/libcrypto.dll.a" % self.subfolder, dst="lib", keep_path=False)
+                self.copy(pattern="%s/libssl.dll.a" % self.subfolder, dst="lib", keep_path=False)
+                self.copy(pattern="%s/libeay32.dll" % self.subfolder, dst="bin", keep_path=False)
+                self.copy(pattern="%s/ssleay32.dll" % self.subfolder, dst="bin", keep_path=False)
+            else:
+                self.copy(pattern="%s/libcrypto.a" % self.subfolder, dst="lib", keep_path=False)
+                self.copy(pattern="%s/libssl.a" % self.subfolder, dst="lib", keep_path=False)
         else:
             if self.options.shared:
                 self.copy(pattern="*libcrypto*.dylib", dst="lib", keep_path=False)
@@ -260,7 +270,7 @@ class OpenSSLConan(ConanFile):
         self.copy(pattern="*.lib", dst="lib", src="binaries/lib", keep_path=False)
         self.copy(pattern="*.dll", dst="bin", src="binaries/bin", keep_path=False)
         self.copy(pattern="*.dll", dst="bin", src="binaries/bin", keep_path=False)
-        
+
         suffix = str(self.settings.compiler.runtime)
         lib_path = os.path.join(self.package_folder, "lib")
         current_ssleay = os.path.join(lib_path, "ssleay32%s.lib" % suffix)
