@@ -207,10 +207,14 @@ class OpenSSLConan(ConanFile):
                 self.run_in_src(r"%s && ms\do_ms" % vcvars)
         runtime = self.settings.compiler.runtime
         # Replace runtime in ntdll.mak and nt.mak
-        tools.replace_in_file("./openssl-%s/ms/ntdll.mak" % self.version, "/MD ", "/%s " % runtime)
-        tools.replace_in_file("./openssl-%s/ms/nt.mak" % self.version, "/MT ", "/%s " % runtime)
-        tools.replace_in_file("./openssl-%s/ms/ntdll.mak" % self.version, "/MDd ", "/%s " % runtime)
-        tools.replace_in_file("./openssl-%s/ms/nt.mak" % self.version, "/MTd ", "/%s " % runtime)
+        tools.replace_in_file("./openssl-%s/ms/ntdll.mak" % self.version, "/MD ", "/%s " % runtime,
+                              strict=False)
+        tools.replace_in_file("./openssl-%s/ms/nt.mak" % self.version, "/MT ", "/%s " % runtime,
+                              strict=False)
+        tools.replace_in_file("./openssl-%s/ms/ntdll.mak" % self.version, "/MDd ", "/%s " % runtime,
+                              strict=False)
+        tools.replace_in_file("./openssl-%s/ms/nt.mak" % self.version, "/MTd ", "/%s " % runtime,
+                              strict=False)
 
         make_command = "nmake -f ms\\ntdll.mak" if self.options.shared else "nmake -f ms\\nt.mak "
         self.output.warn("----------MAKE OPENSSL %s-------------" % self.version)
