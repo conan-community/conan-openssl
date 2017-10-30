@@ -1,6 +1,7 @@
 from conans import ConanFile, AutoToolsBuildEnvironment
 from conans import tools
 import os
+import subprocess
 
 
 class OpenSSLConan(ConanFile):
@@ -99,6 +100,8 @@ class OpenSSLConan(ConanFile):
             self.unix_build(config_options_string)
         elif self.settings.os == "Macos":
             self.osx_build(config_options_string)
+        elif self.settings.os == "iOS":
+            self.ios_build(config_options_string)
         elif self.settings.compiler == "Visual Studio":
             self.visual_build(config_options_string)
         elif self.settings.os == "Windows" and self.settings.compiler == "gcc":
@@ -111,6 +114,8 @@ class OpenSSLConan(ConanFile):
     def run_in_src(self, command, show_output=False):
         if not show_output and self.settings.os != "Windows":
             command += ' | while read line; do printf "%c" .; done'
+            # pipe doesn't fail if first part fails
+            command = 'bash -l -c -o pipefail "%s"' % command.replace('"', '\\"')
         with tools.chdir(self.subfolder):
             self.run(command)
         self.output.writeln(" ")
@@ -162,6 +167,69 @@ class OpenSSLConan(ConanFile):
         self.output.warn(config_line)
         self.run_in_src(config_line)
         self.run_in_src("make depend")
+        self.output.warn("----------MAKE OPENSSL %s-------------" % self.version)
+        self.run_in_src("make")
+
+    def ios_build(self, config_options_string):
+        def call(cmd):
+            return subprocess.check_output(cmd, shell=False).strip()
+
+        def find_sysroot(sdk_name):
+            return call(["xcrun", "--show-sdk-path", "-sdk", sdk_name])
+
+        def find_program(program, sdk_name=None):
+            args = ["xcrun", "--find", program]
+            if sdk_name:
+                args.extend(["-sdk", sdk_name])
+            return call(args)
+
+        def to_apple_arch(arch):
+            """converts conan-style architecture into Apple-style arch"""
+            return {'x86': 'i386',
+                    'x86_64': 'x86_64',
+                    'armv7': 'armv7',
+                    'armv8': 'arm64',
+                    'armv7s': 'armv7s',
+                    'armv7k': 'armv7k'}.get(str(arch))
+
+        def apple_sdk_name(settings):
+            """returns proper SDK name suitable for OS and architecture
+            we're building for (considering simulators)"""
+            arch = settings.get_safe('arch')
+            _os = settings.get_safe('os')
+            if str(arch).startswith('x86'):
+                return {'Macos': 'macosx',
+                        'iOS': 'iphonesimulator',
+                        'watchOS': 'watchsimulator',
+                        'tvOS': 'appletvsimulator'}.get(str(_os))
+            elif str(arch).startswith('arm'):
+                return {'iOS': 'iphoneos',
+                        'watchOS': 'watchos',
+                        'tvOS': 'appletvos'}.get(str(_os))
+            else:
+                return None
+
+        command = "./Configure iphoneos-cross %s" % config_options_string
+
+        sdk = apple_sdk_name(self.settings)
+        sysroot = find_sysroot(sdk)
+        cc = find_program("clang", sdk)
+
+        cc += " -arch %s" % to_apple_arch(self.settings.arch)
+        if not str(self.settings.arch).startswith("arm"):
+            cc += " -DOPENSSL_NO_ASM"
+
+        os.environ["CROSS_SDK"] = os.path.basename(sysroot)
+        os.environ["CROSS_TOP"] = os.path.dirname(os.path.dirname(sysroot))
+
+        command = 'CC="%s" %s' % (cc, command)
+
+        self.run_in_src(command)
+        # REPLACE -install_name FOR FOLLOW THE CONAN RULES,
+        # DYNLIBS IDS AND OTHER DYNLIB DEPS WITHOUT PATH, JUST THE LIBRARY NAME
+        old_str = 'SHAREDFLAGS="$$SHAREDFLAGS -install_name $(INSTALLTOP)/$(LIBDIR)/$$SHLIB$'
+        new_str = 'SHAREDFLAGS="$$SHAREDFLAGS -install_name $$SHLIB$'
+        tools.replace_in_file("./openssl-%s/Makefile.shared" % self.version, old_str, new_str)
         self.output.warn("----------MAKE OPENSSL %s-------------" % self.version)
         self.run_in_src("make")
 
@@ -231,7 +299,7 @@ class OpenSSLConan(ConanFile):
         # https://netix.dl.sourceforge.net/project/msys2/Base/x86_64/msys2-x86_64-20161025.exe
         config_options_string = tools.unix_path(config_options_string)
         if self.settings.build_type == "Debug":
-            config_options_string = "-d " + config_options_string
+            config_options_string = "-g " + config_options_string
         if self.settings.arch == "x86":
             config_line = "./Configure mingw %s" % config_options_string
         else:
