@@ -2,6 +2,8 @@ from conans import ConanFile, AutoToolsBuildEnvironment
 from conans import tools
 import os
 
+from conans.errors import ConanException
+
 
 class OpenSSLConan(ConanFile):
     name = "OpenSSL"
@@ -206,15 +208,17 @@ class OpenSSLConan(ConanFile):
             else:
                 self.run_in_src(r"%s && ms\do_ms" % vcvars)
         runtime = self.settings.compiler.runtime
+
         # Replace runtime in ntdll.mak and nt.mak
-        tools.replace_in_file("./openssl-%s/ms/ntdll.mak" % self.version, "/MD ", "/%s " % runtime,
-                              strict=False)
-        tools.replace_in_file("./openssl-%s/ms/nt.mak" % self.version, "/MT ", "/%s " % runtime,
-                              strict=False)
-        tools.replace_in_file("./openssl-%s/ms/ntdll.mak" % self.version, "/MDd ", "/%s " % runtime,
-                              strict=False)
-        tools.replace_in_file("./openssl-%s/ms/nt.mak" % self.version, "/MTd ", "/%s " % runtime,
-                              strict=False)
+        for filename in ["./openssl-%s/ms/ntdll.mak", "./openssl-%s/ms/nt.mak"]:
+            for e in ["MDd", "MTd", "MD", "MT"]:
+                try:
+                    tools.replace_in_file(filename, "/%s" % e, "/%s" % runtime)
+                    self.output.warn("replace vs runtime %s in %s" % ("/%s" % e, filename))
+                    break  # we found a runtime argument in the file, so we can break
+                except ConanException:
+                    pass
+            raise Exception("Could not find any vs runtime in file")
 
         make_command = "nmake -f ms\\ntdll.mak" if self.options.shared else "nmake -f ms\\nt.mak "
         self.output.warn("----------MAKE OPENSSL %s-------------" % self.version)
