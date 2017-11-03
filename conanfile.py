@@ -3,8 +3,6 @@ from conans import tools
 import os
 import subprocess
 
-from conans.errors import ConanException
-
 
 class OpenSSLConan(ConanFile):
     name = "OpenSSL"
@@ -282,15 +280,19 @@ class OpenSSLConan(ConanFile):
         runtime = self.settings.compiler.runtime
 
         # Replace runtime in ntdll.mak and nt.mak
-        for filename in ["./openssl-%s/ms/ntdll.mak", "./openssl-%s/ms/nt.mak"]:
-            for e in ["MDd", "MTd", "MD", "MT"]:
+        def replace_runtime_in_file(filename):
+            runtimes = ["MDd", "MTd", "MD", "MT"]
+            for e in runtimes:
                 try:
                     tools.replace_in_file(filename, "/%s" % e, "/%s" % runtime)
                     self.output.warn("replace vs runtime %s in %s" % ("/%s" % e, filename))
-                    break  # we found a runtime argument in the file, so we can break
-                except ConanException:
+                    return # we found a runtime argument in the file, so we can exit the function
+                except:
                     pass
             raise Exception("Could not find any vs runtime in file")
+
+        replace_runtime_in_file("./openssl-%s/ms/ntdll.mak" % self.version)
+        replace_runtime_in_file("./openssl-%s/ms/nt.mak" % self.version)
 
         make_command = "nmake -f ms\\ntdll.mak" if self.options.shared else "nmake -f ms\\nt.mak "
         self.output.warn("----------MAKE OPENSSL %s-------------" % self.version)
