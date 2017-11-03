@@ -38,7 +38,7 @@ class OpenSSLConan(ConanFile):
     # When a new version is available they move the tar.gz to old/ location
     source_tgz = "https://www.openssl.org/source/openssl-%s.tar.gz" % version
     source_tgz_old = "https://www.openssl.org/source/old/1.0.2/openssl-%s.tar.gz" % version
-    
+
     def build_requirements(self):
         # useful for example for conditional build_requires
         if self.settings.os == "Windows":
@@ -137,6 +137,8 @@ class OpenSSLConan(ConanFile):
                 target = "%slinux-generic32" % target_prefix
             elif self.settings.arch == "x86_64":
                 target = "%slinux-x86_64" % target_prefix
+            elif self.settings.arch == "armv7":
+                target = "%slinux-armv4" % target_prefix
 
         elif self.settings.os == "SunOS":
             if self.settings.compiler in ["apple-clang", "clang", "gcc"]:
@@ -148,7 +150,7 @@ class OpenSSLConan(ConanFile):
 
             # OpenSSL has no debug profile for non sparcv9 machine
             if self.settings.arch != "sparcv9":
-                target_prefix = "" 
+                target_prefix = ""
 
             if self.settings.arch in ["sparc", "x86"]:
                 target = "%ssolaris-%s%s" % (target_prefix, self.settings.arch, suffix)
@@ -251,7 +253,7 @@ class OpenSSLConan(ConanFile):
 
     def visual_build(self, config_options_string):
         self.run_in_src("perl --version")
-        
+
         self.output.warn("----------CONFIGURING OPENSSL FOR WINDOWS. %s-------------" % self.version)
         debug = "debug-" if self.settings.build_type == "Debug" else ""
         arch = "32" if self.settings.arch == "x86" else "64A"
