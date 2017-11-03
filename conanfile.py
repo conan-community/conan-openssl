@@ -2,8 +2,6 @@ from conans import ConanFile, AutoToolsBuildEnvironment
 from conans import tools
 import os
 
-from conans.errors import ConanException
-
 
 class OpenSSLConan(ConanFile):
     name = "OpenSSL"
