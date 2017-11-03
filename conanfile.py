@@ -7,7 +7,7 @@ from conans.errors import ConanException
 
 class OpenSSLConan(ConanFile):
     name = "OpenSSL"
-    version = "1.0.2l"
+    version = "1.0.2m"
     settings = "os", "compiler", "arch", "build_type"
     url = "http://github.com/lasote/conan-openssl"
     license = "The current OpenSSL licence is an 'Apache style' license: https://www.openssl.org/source/license.html"
@@ -53,7 +53,8 @@ class OpenSSLConan(ConanFile):
         except:
             tools.download(self.source_tgz, "openssl.tar.gz")
         tools.unzip("openssl.tar.gz")
-        tools.check_sha256("openssl.tar.gz", "ce07195b659e75f4e1db43552860070061f156a98bb37b672b101ba6e3ddf30c")
+        tools.check_sha256("openssl.tar.gz",
+                           "8c6ff15ec6b319b50788f42c7abc2890c08ba5a1cdcd3810eb9092deada37b0f")
         os.unlink("openssl.tar.gz")
 
     def configure(self):
