@@ -280,9 +280,9 @@ class OpenSSLConan(ConanFile):
         runtime = self.settings.compiler.runtime
 
         # Replace runtime in ntdll.mak and nt.mak
-        def replace_runtime_in_file(filename):
-            runtimes = ["MDd", "MTd", "MD", "MT"]
-            for e in runtimes:
+        for filename in ["./openssl-%s/ms/ntdll.mak" % self.version,
+                         "./openssl-%s/ms/nt.mak" % self.version]:
+            for e in ["MDd", "MTd", "MD", "MT"]:
                 try:
                     tools.replace_in_file(filename, "/%s" % e, "/%s" % runtime)
                     self.output.warn("replace vs runtime %s in %s" % ("/%s" % e, filename))
