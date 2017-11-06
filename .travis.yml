@@ -1,7 +1,7 @@
 
 env:
    global:
-     - CONAN_REFERENCE: "OpenSSL/1.0.2l"
+     - CONAN_REFERENCE: "OpenSSL/1.0.2m"
      - CONAN_USERNAME: "conan"
      - CONAN_LOGIN_USERNAME: "lasote"
      - CONAN_CHANNEL: "testing"
