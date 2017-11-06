@@ -277,15 +277,21 @@ class OpenSSLConan(ConanFile):
             else:
                 self.run_in_src(r"%s && ms\do_ms" % vcvars)
         runtime = self.settings.compiler.runtime
+
         # Replace runtime in ntdll.mak and nt.mak
-        tools.replace_in_file("./openssl-%s/ms/ntdll.mak" % self.version, "/MD ", "/%s " % runtime,
-                              strict=False)
-        tools.replace_in_file("./openssl-%s/ms/nt.mak" % self.version, "/MT ", "/%s " % runtime,
-                              strict=False)
-        tools.replace_in_file("./openssl-%s/ms/ntdll.mak" % self.version, "/MDd ", "/%s " % runtime,
-                              strict=False)
-        tools.replace_in_file("./openssl-%s/ms/nt.mak" % self.version, "/MTd ", "/%s " % runtime,
-                              strict=False)
+        def replace_runtime_in_file(filename):
+            runtimes = ["MDd", "MTd", "MD", "MT"]
+            for e in runtimes:
+                try:
+                    tools.replace_in_file(filename, "/%s" % e, "/%s" % runtime)
+                    self.output.warn("replace vs runtime %s in %s" % ("/%s" % e, filename))
+                    return # we found a runtime argument in the file, so we can exit the function
+                except:
+                    pass
+            raise Exception("Could not find any vs runtime in file")
+
+        replace_runtime_in_file("./openssl-%s/ms/ntdll.mak" % self.version)
+        replace_runtime_in_file("./openssl-%s/ms/nt.mak" % self.version)
 
         make_command = "nmake -f ms\\ntdll.mak" if self.options.shared else "nmake -f ms\\nt.mak "
         self.output.warn("----------MAKE OPENSSL %s-------------" % self.version)
