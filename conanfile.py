@@ -280,13 +280,13 @@ class OpenSSLConan(ConanFile):
         runtime = self.settings.compiler.runtime
 
         # Replace runtime in ntdll.mak and nt.mak
-        for filename in ["./openssl-%s/ms/ntdll.mak" % self.version,
-                         "./openssl-%s/ms/nt.mak" % self.version]:
-            for e in ["MDd", "MTd", "MD", "MT"]:
+        def replace_runtime_in_file(filename):
+            runtimes = ["MDd", "MTd", "MD", "MT"]
+            for e in runtimes:
                 try:
                     tools.replace_in_file(filename, "/%s" % e, "/%s" % runtime)
                     self.output.warn("replace vs runtime %s in %s" % ("/%s" % e, filename))
-                    return # we found a runtime argument in the file, so we can exit the function
+                    return  # we found a runtime argument in the file, so we can exit the function
                 except:
                     pass
             raise Exception("Could not find any vs runtime in file")
