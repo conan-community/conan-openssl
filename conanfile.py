@@ -59,6 +59,9 @@ class OpenSSLConan(ConanFile):
 
     def configure(self):
         del self.settings.compiler.libcxx
+        if self.settings.os == "Android" and self.settings.compiler == "clang":
+            raise Exception("Not supported Android + Clang, please submit a patch if you know "
+                            "how to build it: %s" % self.url)
 
     def requirements(self):
         if not self.options.no_zlib:
@@ -98,7 +101,7 @@ class OpenSSLConan(ConanFile):
                 self.output.info("Activated option! %s" % option_name)
                 config_options_string += " %s" % option_name.replace("_", "-")
 
-        if self.settings.os in ["Linux", "SunOS", "FreeBSD"]:
+        if self.settings.os in ["Linux", "SunOS", "FreeBSD", "Android"]:
             self.unix_build(config_options_string)
         elif self.settings.os == "Macos":
             self.osx_build(config_options_string)
@@ -139,9 +142,17 @@ class OpenSSLConan(ConanFile):
                 target = "%slinux-generic32" % target_prefix
             elif self.settings.arch == "x86_64":
                 target = "%slinux-x86_64" % target_prefix
-            elif self.settings.arch == "armv7":
+            elif "armv7" in str(self.settings.arch):
                 target = "%slinux-armv4" % target_prefix
-
+        elif self.settings.os == "Android":
+            if "armv7" in self.settings.arch:
+                target = "android-armv7"
+            elif self.settings.arch == "x86":
+                target = "android-x86"
+            elif self.settings.arch == "mips":
+                target = "android-mips"
+            else:
+                raise Exception("Unsupported arch for android")
         elif self.settings.os == "SunOS":
             if self.settings.compiler in ["apple-clang", "clang", "gcc"]:
                 suffix = "-gcc"
@@ -168,11 +179,13 @@ class OpenSSLConan(ConanFile):
             raise Exception("Unsupported operating system: %s" % self.settings.os)
 
         config_line = "./Configure %s -fPIC %s %s" % (config_options_string, target, extra_flags)
+
         self.output.warn(config_line)
         self.run_in_src(config_line)
-        self.run_in_src("make depend")
+        if self.settings.os != "Android":
+            self.run_in_src("make depend")
         self.output.warn("----------MAKE OPENSSL %s-------------" % self.version)
-        self.run_in_src("make")
+        self.run_in_src("make", show_output=True)
 
     def ios_build(self, config_options_string):
         def call(cmd):
