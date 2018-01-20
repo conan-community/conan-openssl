@@ -9,7 +9,6 @@ environment:
     CONAN_USERNAME: "conan"
     CONAN_LOGIN_USERNAME: "lasote"
     CONAN_CHANNEL: "testing"
-    VS150COMNTOOLS: "C:\\Program Files (x86)\\Microsoft Visual Studio\\2017\\Community\\Common7\\Tools\\"
     CONAN_UPLOAD: "https://api.bintray.com/conan/conan-community/conan"
     CONAN_STABLE_BRANCH_PATTERN: "release/*"
     CONAN_TOTAL_PAGES: 2
@@ -45,19 +44,27 @@ environment:
           CONAN_BASH_PATH: "c:\\msys64\\usr\\bin\\bash"
           CONAN_CURRENT_PAGE: 2
 
-        - MINGW_CONFIGURATIONS: "6.3@x86_64@seh@posix"
+        - MINGW_CONFIGURATIONS: "5@x86_64@seh@posix"
           CONAN_BASH_PATH: "c:\\msys64\\usr\\bin\\bash"
           CONAN_CURRENT_PAGE: 1
 
-        - MINGW_CONFIGURATIONS: "6.3@x86_64@seh@posix"
+        - MINGW_CONFIGURATIONS: "5@x86_64@seh@posix"
           CONAN_BASH_PATH: "c:\\msys64\\usr\\bin\\bash"
           CONAN_CURRENT_PAGE: 2
 
-        - MINGW_CONFIGURATIONS: "7.1@x86_64@seh@posix"
+        - MINGW_CONFIGURATIONS: "6@x86_64@seh@posix"
           CONAN_BASH_PATH: "c:\\msys64\\usr\\bin\\bash"
           CONAN_CURRENT_PAGE: 1
 
-        - MINGW_CONFIGURATIONS: "7.1@x86_64@seh@posix"
+        - MINGW_CONFIGURATIONS: "6@x86_64@seh@posix"
+          CONAN_BASH_PATH: "c:\\msys64\\usr\\bin\\bash"
+          CONAN_CURRENT_PAGE: 2
+
+        - MINGW_CONFIGURATIONS: "7@x86_64@seh@posix"
+          CONAN_BASH_PATH: "c:\\msys64\\usr\\bin\\bash"
+          CONAN_CURRENT_PAGE: 1
+
+        - MINGW_CONFIGURATIONS: "7@x86_64@seh@posix"
           CONAN_BASH_PATH: "c:\\msys64\\usr\\bin\\bash"
           CONAN_CURRENT_PAGE: 2
 

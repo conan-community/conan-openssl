@@ -277,7 +277,7 @@ class OpenSSLConan(ConanFile):
         # Will output binaries to ./binaries
         vcvars = tools.vcvars_command(self.settings)
         # -wd4005 to not consider warnings as errors, introduced in 1.0.2n
-        warn_flag = "-wd4005" if self.settings.arch == "x86" else ""
+        warn_flag = ""  # "-wd4005"
         config_command = "%s && perl Configure %s %s --prefix=../binaries %s" % (vcvars, configure_type, no_asm, warn_flag)
         whole_command = "%s %s" % (config_command, config_options_string)
         self.output.warn(whole_command)
