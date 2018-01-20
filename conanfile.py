@@ -276,7 +276,8 @@ class OpenSSLConan(ConanFile):
         no_asm = "no-asm" if self.options.no_asm else ""
         # Will output binaries to ./binaries
         vcvars = tools.vcvars_command(self.settings)
-        config_command = "%s && perl Configure %s %s --prefix=../binaries" % (vcvars, configure_type, no_asm)
+        # -wd4005 to not consider warnings as errors, introduced in 1.0.2n
+        config_command = "%s && perl Configure %s %s --prefix=../binaries -wd4005" % (vcvars, configure_type, no_asm)
         whole_command = "%s %s" % (config_command, config_options_string)
         self.output.warn(whole_command)
         self.run_in_src(whole_command)
