@@ -1,7 +1,10 @@
 from conans import ConanFile, AutoToolsBuildEnvironment
 from conans import tools
+from conans import __version__ as client_version
 import os
 import subprocess
+
+from conans.model.version import Version
 
 
 class OpenSSLConan(ConanFile):
@@ -58,6 +61,8 @@ class OpenSSLConan(ConanFile):
         os.unlink("openssl.tar.gz")
 
     def configure(self):
+        if client_version < Version("1.0.0"):
+            raise Exception("This recipe only works with Conan client >= 1.0.0")
         del self.settings.compiler.libcxx
         if self.settings.os == "Android" and self.settings.compiler == "clang":
             raise Exception("Not supported Android + Clang, please submit a patch if you know "
@@ -275,53 +280,54 @@ class OpenSSLConan(ConanFile):
         configure_type = debug + "VC-WIN" + arch
         no_asm = "no-asm" if self.options.no_asm else ""
         # Will output binaries to ./binaries
-        vcvars = tools.vcvars_command(self.settings)
-        # -wd4005 to not consider warnings as errors, introduced in 1.0.2n
-        warn_flag = ""  # "-wd4005"
-        config_command = "%s && perl Configure %s %s --prefix=../binaries %s" % (vcvars, configure_type, no_asm, warn_flag)
-        whole_command = "%s %s" % (config_command, config_options_string)
-        self.output.warn(whole_command)
-        self.run_in_src(whole_command)
+        with tools.vcvars(self.settings, filter_known_paths=False):
+            config_command = "perl Configure %s %s --prefix=../binaries" % (configure_type, no_asm)
+            whole_command = "%s %s" % (config_command, config_options_string)
+            self.output.warn(whole_command)
+            self.run_in_src(whole_command)
 
-        if not self.options.no_asm and self.settings.arch == "x86":
-            # The 64 bits builds do not require the do_nasm
-            # http://p-nand-q.com/programming/windows/building_openssl_with_visual_studio_2013.html
-            self.run_in_src(r"%s && ms\do_nasm" % vcvars)
-        else:
-            if arch == "64A":
-                self.run_in_src(r"%s && ms\do_win64a" % vcvars)
+            if not self.options.no_asm and self.settings.arch == "x86":
+                # The 64 bits builds do not require the do_nasm
+                # http://p-nand-q.com/programming/windows/building_openssl_with_visual_studio_2013.html
+                self.run_in_src(r"ms\do_nasm")
             else:
-                self.run_in_src(r"%s && ms\do_ms" % vcvars)
-        runtime = self.settings.compiler.runtime
+                if arch == "64A":
+                    self.run_in_src(r"ms\do_win64a")
+                else:
+                    self.run_in_src(r"ms\do_ms")
+            runtime = self.settings.compiler.runtime
 
-        # Replace runtime in ntdll.mak and nt.mak
-        def replace_runtime_in_file(filename):
-            runtimes = ["MDd", "MTd", "MD", "MT"]
-            for e in runtimes:
-                try:
-                    tools.replace_in_file(filename, "/%s" % e, "/%s" % runtime)
-                    self.output.warn("replace vs runtime %s in %s" % ("/%s" % e, filename))
-                    return  # we found a runtime argument in the file, so we can exit the function
-                except:
-                    pass
-            raise Exception("Could not find any vs runtime in file")
+            # Replace runtime in ntdll.mak and nt.mak
+            def replace_runtime_in_file(filename):
+                runtimes = ["MDd", "MTd", "MD", "MT"]
+                for e in runtimes:
 
-        replace_runtime_in_file("./openssl-%s/ms/ntdll.mak" % self.version)
-        replace_runtime_in_file("./openssl-%s/ms/nt.mak" % self.version)
-        if self.settings.arch == "x86":
-            # 1.0.2 n => .\crypto\cversion.c(82): error C2220: warning treated as error - no 'object' file generated
-            tools.replace_in_file("./openssl-%s/ms/nt.mak" % self.version, " -WX", "")
 
-        make_command = "nmake -f ms\\ntdll.mak" if self.options.shared else "nmake -f ms\\nt.mak "
-        self.output.warn("----------MAKE OPENSSL %s-------------" % self.version)
-        self.run_in_src("%s && %s" % (vcvars, make_command))
-        self.run_in_src("%s && %s install" % (vcvars, make_command))
-        # Rename libs with the arch
-        renames = {"./binaries/lib/libeay32.lib": "./binaries/lib/libeay32%s.lib" % runtime,
-                   "./binaries/lib/ssleay32.lib": "./binaries/lib/ssleay32%s.lib" % runtime}
-        for old, new in renames.items():
-            if os.path.exists(old):
-                os.rename(old, new)
+
+
+                    try:
+                        tools.replace_in_file(filename, "/%s" % e, "/%s" % runtime)
+                        self.output.warn("replace vs runtime %s in %s" % ("/%s" % e, filename))
+                        return  # we found a runtime argument in the file, so we can exit the function
+                    except:
+                        pass
+                raise Exception("Could not find any vs runtime in file")
+
+            replace_runtime_in_file("./openssl-%s/ms/ntdll.mak" % self.version)
+            replace_runtime_in_file("./openssl-%s/ms/nt.mak" % self.version)
+            if self.settings.arch == "x86":  # Do not consider warning as errors, 1.0.2n error with x86 builds
+                tools.replace_in_file("./openssl-%s/ms/nt.mak" % self.version, "-WX", "")
+
+            make_command = "nmake -f ms\\ntdll.mak" if self.options.shared else "nmake -f ms\\nt.mak "
+            self.output.warn("----------MAKE OPENSSL %s-------------" % self.version)
+            self.run_in_src(make_command)
+            self.run_in_src("%s install" % make_command)
+            # Rename libs with the arch
+            renames = {"./binaries/lib/libeay32.lib": "./binaries/lib/libeay32%s.lib" % runtime,
+                       "./binaries/lib/ssleay32.lib": "./binaries/lib/ssleay32%s.lib" % runtime}
+            for old, new in renames.items():
+                if os.path.exists(old):
+                    os.rename(old, new)
 
     def mingw_build(self, config_options_string):
         # https://netix.dl.sourceforge.net/project/msys2/Base/x86_64/msys2-x86_64-20161025.exe
