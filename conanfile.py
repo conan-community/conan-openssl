@@ -301,10 +301,6 @@ class OpenSSLConan(ConanFile):
             def replace_runtime_in_file(filename):
                 runtimes = ["MDd", "MTd", "MD", "MT"]
                 for e in runtimes:
-
-
-
-
                     try:
                         tools.replace_in_file(filename, "/%s" % e, "/%s" % runtime)
                         self.output.warn("replace vs runtime %s in %s" % ("/%s" % e, filename))
@@ -317,6 +313,7 @@ class OpenSSLConan(ConanFile):
             replace_runtime_in_file("./openssl-%s/ms/nt.mak" % self.version)
             if self.settings.arch == "x86":  # Do not consider warning as errors, 1.0.2n error with x86 builds
                 tools.replace_in_file("./openssl-%s/ms/nt.mak" % self.version, "-WX", "")
+                tools.replace_in_file("./openssl-%s/ms/ntdll.mak" % self.version, "-WX", "")
 
             make_command = "nmake -f ms\\ntdll.mak" if self.options.shared else "nmake -f ms\\nt.mak "
             self.output.warn("----------MAKE OPENSSL %s-------------" % self.version)
