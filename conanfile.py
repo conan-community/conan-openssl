@@ -139,7 +139,7 @@ class OpenSSLConan(ConanFile):
             extra_flags += " -O0"
             target_prefix = "debug-"
             if self.settings.compiler in ["apple-clang", "clang", "gcc"]:
-                extra_flags += + " -g3 -fno-omit-frame-pointer -fno-inline-functions"
+                extra_flags += " -g3 -fno-omit-frame-pointer -fno-inline-functions"
 
         if self.settings.os == "Linux":
             if self.settings.arch == "x86":
