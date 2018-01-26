@@ -136,11 +136,10 @@ class OpenSSLConan(ConanFile):
         target_prefix = ""
         if self.settings.build_type == "Debug":
             config_options_string = " no-asm" + config_options_string
-            extra_flags = extra_flags + " -O0"
+            extra_flags += " -O0"
             target_prefix = "debug-"
             if self.settings.compiler in ["apple-clang", "clang", "gcc"]:
-                extra_flags = extra_flags + " -g3 -fno-omit-frame-pointer " \
-                                            "-fno-inline-functions"
+                extra_flags += + " -g3 -fno-omit-frame-pointer -fno-inline-functions"
 
         if self.settings.os == "Linux":
             if self.settings.arch == "x86":
@@ -149,9 +148,13 @@ class OpenSSLConan(ConanFile):
                 target = "%slinux-x86_64" % target_prefix
             elif "armv7" in str(self.settings.arch):
                 target = "%slinux-armv4" % target_prefix
+            elif self.settings.arch == "armv8":  # Thanks @dashaomai!
+                target = "%slinux-aarch64" % target_prefix
         elif self.settings.os == "Android":
             if "armv7" in self.settings.arch:
                 target = "android-armv7"
+            elif self.settings.arch == "armv8":
+                target = "android-aarch64"
             elif self.settings.arch == "x86":
                 target = "android-x86"
             elif self.settings.arch == "mips":
