@@ -2,8 +2,8 @@ PROJECT(MyHello)
 cmake_minimum_required(VERSION 2.8)
 
 include(${CMAKE_BINARY_DIR}/conanbuildinfo.cmake)
-CONAN_BASIC_SETUP()
-
+conan_basic_setup()
+set(OpenSSL_DEBUG 1)
 find_package(OpenSSL)
 
 IF(OPENSSL_FOUND)

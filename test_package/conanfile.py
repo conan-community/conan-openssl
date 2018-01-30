@@ -11,6 +11,10 @@ class DefaultNameConan(ConanFile):
 
     def build(self):
         cmake = CMake(self)
+
+        if self.settings.os == "Android":
+            cmake.definitions["CONAN_LIBCXX"] = ""
+
         cmake.configure()
         cmake.build()
 
