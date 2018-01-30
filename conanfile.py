@@ -1,10 +1,7 @@
 from conans import ConanFile, AutoToolsBuildEnvironment
 from conans import tools
-from conans import __version__ as client_version
 import os
 import subprocess
-
-from conans.model.version import Version
 
 
 class OpenSSLConan(ConanFile):
@@ -47,7 +44,7 @@ class OpenSSLConan(ConanFile):
         # useful for example for conditional build_requires
         if self.compiler == "Visual Studio":
             self.build_requires("strawberryperl/5.26.0@conan/stable")
-            if not self.options.no_asm and self.arch == "x86":
+            if not self.options.no_asm:
                 self.build_requires("nasm/2.13.01@conan/stable")
 
     def source(self):
@@ -123,18 +120,20 @@ class OpenSSLConan(ConanFile):
         return config_options_string
 
     def _get_flags(self):
-        env_build = AutoToolsBuildEnvironment(self)
-        extra_flags = ' '.join(env_build.flags)
-
-        if self.settings.build_type == "Debug":
-            extra_flags += " -O0"
-            if self.compiler in ["apple-clang", "clang", "gcc"]:
-                extra_flags += " -g3 -fno-omit-frame-pointer -fno-inline-functions"
-            if self.settings.os in ["Linux", "SunOS", "FreeBSD", "Android"]:
-                extra_flags += " no-asm"
 
         if self.settings.os != "Windows":
+            env_build = AutoToolsBuildEnvironment(self)
+            extra_flags = ' '.join(env_build.flags)
             extra_flags += " -fPIC" if not self.options.no_fpic else ""
+            if self.settings.build_type == "Debug":
+                extra_flags += " -O0"
+                if self.compiler in ["apple-clang", "clang", "gcc"]:
+                    extra_flags += " -g3 -fno-omit-frame-pointer -fno-inline-functions"
+                if self.settings.os in ["Linux", "SunOS", "FreeBSD", "Android"]:
+                    extra_flags += " no-asm"
+        else:
+            extra_flags = "--debug" if self.settings.build_type == "Debug" else "--release"
+            extra_flags += " no-shared" if not self.options.shared else "shared"
 
         extra_flags += self._get_config_options_string()
         return extra_flags
@@ -142,7 +141,9 @@ class OpenSSLConan(ConanFile):
     def _get_target(self):
         target_prefix = ""
 
-        if self.settings.os == "Linux":
+        if self.settings.os == "Windows":
+            target = "VC-WIN%s" % ("32" if self.arch == "x86" else "64A")
+        elif self.settings.os == "Linux":
             target = {"x86": "linux-x86",
                       "x86_64": "linux-x86_64",
                       "armv7": "linux-armv4",
@@ -283,81 +284,56 @@ class OpenSSLConan(ConanFile):
         tools.replace_in_file("%s/Makefile.shared" % self.subfolder, old_str, new_str,
                               strict=self.in_local_cache)
 
-    def visual_build(self):
-        self.run_in_src("perl --version")
+    def _patch_runtime(self):
+        runtime = self.settings.compiler.runtime
 
+        # Replace runtime in ntdll.mak and nt.mak
+        def replace_runtime_in_file(filename):
+            runtimes = ["MDd", "MTd", "MD", "MT"]
+            for e in runtimes:
+                try:
+                    tools.replace_in_file(filename, "/%s" % e,
+                                          "/%s" % runtime, strict=self.in_local_cache)
+                    self.output.warn("replace vs runtime %s in %s" % ("/%s" % e, filename))
+                    # we found a runtime argument in the file, so we can exit the function
+                    return
+                except:
+                    pass
+            raise Exception("Could not find any vs runtime in file")
+
+        replace_runtime_in_file("%s/openssl-%s/Makefile" % (self.source_folder, self.version))
+        replace_runtime_in_file("%s/openssl-%s/Makefile.shared" % (self.source_folder, self.version))
+
+    def visual_build(self):
         self.output.warn("----------CONFIGURING OPENSSL FOR WINDOWS. %s-------------" % self.version)
-        debug = "debug-" if self.settings.build_type == "Debug" else ""
-        arch = "32" if self.arch == "x86" else "64A"
-        configure_type = debug + "VC-WIN" + arch
+        target = self._get_target()
         no_asm = "no-asm" if self.options.no_asm else ""
         # Will output binaries to ./binaries
         with tools.vcvars(self.settings, filter_known_paths=False):
-            config_command = "perl Configure %s %s --prefix=../binaries" % (configure_type, no_asm)
-            config_options_string = self._get_config_options_string()
-            whole_command = "%s %s" % (config_command, config_options_string)
-            self.output.warn(whole_command)
-            self.run_in_src(whole_command)
 
-            if not self.options.no_asm and self.arch == "x86":
-                # The 64 bits builds do not require the do_nasm
-                # http://p-nand-q.com/programming/windows/building_openssl_with_visual_studio_2013.html
-                self.run_in_src(r"ms\do_nasm")
-            else:
-                if arch == "64A":
-                    self.run_in_src(r"ms\do_win64a")
-                else:
-                    self.run_in_src(r"ms\do_ms")
-            runtime = self.settings.compiler.runtime
+            config_command = "perl Configure %s %s --prefix=%s/binaries %s" % (target,
+                                                                               no_asm,
+                                                                               self.source_folder,
+                                                                               self._get_flags())
+            self.output.warn(config_command)
+            self.run_in_src(config_command)
 
-            # Replace runtime in ntdll.mak and nt.mak
-            def replace_runtime_in_file(filename):
-                runtimes = ["MDd", "MTd", "MD", "MT"]
-                for e in runtimes:
-                    try:
-                        tools.replace_in_file(filename, "/%s" % e,
-                                              "/%s" % runtime, strict=self.in_local_cache)
-                        self.output.warn("replace vs runtime %s in %s" % ("/%s" % e, filename))
-                        # we found a runtime argument in the file, so we can exit the function
-                        return
-                    except:
-                        pass
-                raise Exception("Could not find any vs runtime in file")
-
-            replace_runtime_in_file("./openssl-%s/ms/ntdll.mak" % self.version)
-            replace_runtime_in_file("./openssl-%s/ms/nt.mak" % self.version)
-            if self.arch == "x86":
-                # Do not consider warning as errors, 1.0.2n error with x86 builds
-                tools.replace_in_file("./openssl-%s/ms/nt.mak" % self.version, "-WX", "",
-                                      strict=self.in_local_cache)
-                tools.replace_in_file("./openssl-%s/ms/ntdll.mak" % self.version, "-WX", "",
-                                      strict=self.in_local_cache)
-
-            make_command = "nmake -f ms\\nt%s.mak" % ("dll" if self.options.shared else "")
             self.output.warn("----------MAKE OPENSSL %s-------------" % self.version)
-            self.run_in_src(make_command)
-            self.run_in_src("%s install" % make_command)
-            # Rename libs with the arch
-            renames = {"./binaries/lib/libeay32.lib": "./binaries/lib/libeay32%s.lib" % runtime,
-                       "./binaries/lib/ssleay32.lib": "./binaries/lib/ssleay32%s.lib" % runtime}
-            for old, new in renames.items():
-                if os.path.exists(old):
-                    os.rename(old, new)
+            self.run_in_src("nmake build_libs")
 
     def package(self):
         # Copy the license files
         self.copy(src=self.subfolder, pattern="*LICENSE", keep_path=False)
         self.copy(pattern="*applink.c", dst="include/openssl/", keep_path=False)
         if self.settings.os == "Windows" and self.compiler == "Visual Studio":
-            self._copy_visual_binaries()
+            self.copy(pattern="*.lib", dst="lib", keep_path=False)
+            self.copy(pattern="*.dll", dst="bin", keep_path=False)
             self.copy(pattern="*.h", dst="include/openssl/", src="binaries/include/", keep_path=False)
         elif self.settings.os == "Windows" and self.compiler == "gcc":
             self.copy(src=self.subfolder, pattern="include/*", dst="include/openssl/", keep_path=False)
             if self.options.shared:
                 self.copy(src=self.subfolder, pattern="*libcrypto.dll.a", dst="lib", keep_path=False)
                 self.copy(src=self.subfolder, pattern="*libssl.dll.a", dst="lib", keep_path=False)
-                self.copy(src=self.subfolder, pattern="*libeay32.dll", dst="bin", keep_path=False)
-                self.copy(src=self.subfolder, pattern="*ssleay32.dll", dst="bin", keep_path=False)
             else:
                 self.copy(src=self.subfolder, pattern="*libcrypto.a", dst="lib", keep_path=False)
                 self.copy(src=self.subfolder, pattern="*libssl.a", dst="lib", keep_path=False)
@@ -369,26 +345,16 @@ class OpenSSLConan(ConanFile):
                 self.copy(pattern="*libssl.so*", dst="lib", keep_path=False)
             else:
                 self.copy("*.a", "lib", keep_path=False)
-            self.copy(src=self.subfolder,
-                      pattern="include/openssl/*.h",
-                      dst="include/openssl",
-                      keep_path=False)
 
-    def _copy_visual_binaries(self):
-        self.copy(pattern="*.lib", dst="lib", src="binaries/lib", keep_path=False)
-        self.copy(pattern="*.dll", dst="bin", src="binaries/bin", keep_path=False)
-        self.copy(pattern="*.dll", dst="bin", src="binaries/bin", keep_path=False)
-
-        suffix = str(self.compiler.runtime)
-        lib_path = os.path.join(self.package_folder, "lib")
-        current_ssleay = os.path.join(lib_path, "ssleay32%s.lib" % suffix)
-        current_libeay = os.path.join(lib_path, "libeay32%s.lib" % suffix)
-        os.rename(current_ssleay, os.path.join(lib_path, "ssleay32.lib"))
-        os.rename(current_libeay, os.path.join(lib_path, "libeay32.lib"))
+        print(self.subfolder)
+        self.copy(src=self.subfolder,
+                  pattern="include/openssl/*.h",
+                  dst="include/openssl",
+                  keep_path=False)
 
     def package_info(self):
         if self.compiler == "Visual Studio":
-            self.cpp_info.libs = ["ssleay32", "libeay32", "crypt32", "msi", "ws2_32"]
+            self.cpp_info.libs = ["ssl", "crypto", "crypt32", "msi", "ws2_32"]
         elif self.compiler == "gcc" and self.settings.os == "Windows":
             self.cpp_info.libs = ["ssl", "crypto", "ws2_32"]
         elif self.settings.os == "Linux":
