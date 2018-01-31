@@ -36,22 +36,22 @@ environment:
           CONAN_CURRENT_PAGE: 2
 
         - MINGW_CONFIGURATIONS: "6@x86_64@seh@posix"
-          CONAN_BASH_PATH: "c:\\msys64\\usr\\bin\\bash"
+          CONAN_BUILD_REQUIRES: "msys2_installer/latest@bincrafters/stable"
           CONAN_REMOTES: "https://api.bintray.com/conan/bincrafters/public-conan"
           CONAN_CURRENT_PAGE: 1
 
         - MINGW_CONFIGURATIONS: "6@x86_64@seh@posix"
-          CONAN_BASH_PATH: "c:\\msys64\\usr\\bin\\bash"
+          CONAN_BUILD_REQUIRES: "msys2_installer/latest@bincrafters/stable"
           CONAN_REMOTES: "https://api.bintray.com/conan/bincrafters/public-conan"
           CONAN_CURRENT_PAGE: 2
 
         - MINGW_CONFIGURATIONS: "7@x86_64@seh@posix"
-          CONAN_BASH_PATH: "c:\\msys64\\usr\\bin\\bash"
+          CONAN_BUILD_REQUIRES: "msys2_installer/latest@bincrafters/stable"
           CONAN_REMOTES: "https://api.bintray.com/conan/bincrafters/public-conan"
           CONAN_CURRENT_PAGE: 1
 
         - MINGW_CONFIGURATIONS: "7@x86_64@seh@posix"
-          CONAN_BASH_PATH: "c:\\msys64\\usr\\bin\\bash"
+          CONAN_BUILD_REQUIRES: "msys2_installer/latest@bincrafters/stable"
           CONAN_REMOTES: "https://api.bintray.com/conan/bincrafters/public-conan"
           CONAN_CURRENT_PAGE: 2
 
