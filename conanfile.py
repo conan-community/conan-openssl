@@ -102,7 +102,7 @@ class OpenSSLConan(ConanFile):
                 from io import StringIO
                 buf = StringIO()
             else:
-                buf = None
+                buf = True
             self.run(command, win_bash=win_bash, output=buf)
         self.output.writeln(" ")
 
