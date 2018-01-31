@@ -19,8 +19,8 @@ class DefaultNameConan(ConanFile):
         cmake.build()
 
     def imports(self):
-        self.copy(pattern="*.dll", dst="bin", src="bin")
-        self.copy(pattern="*.dylib", dst="bin", src="lib")
+        self.copy(pattern="*.dll", dst="bin", src="bin", root_package="OpenSSL")
+        self.copy(pattern="*.dylib", dst="bin", src="lib", root_package="OpenSSL")
 
     def test(self):
         if not tools.cross_building(self.settings):

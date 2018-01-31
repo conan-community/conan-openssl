@@ -138,7 +138,7 @@ class OpenSSLConan(ConanFile):
                     extra_flags += " no-asm"
         else:
             extra_flags = "--debug" if self.settings.build_type == "Debug" else "--release"
-            extra_flags += " no-shared" if not self.options.shared else "shared"
+            extra_flags += " no-shared" if not self.options.shared else " shared"
 
         extra_flags += self._get_config_options_string()
         return extra_flags
@@ -146,7 +146,7 @@ class OpenSSLConan(ConanFile):
     def _get_target(self):
         target_prefix = ""
 
-        if self.settings.os == "Windows":
+        if self.settings.os == "Windows" and self.settings.compiler == "Visual Studio":
             target = "VC-WIN%s" % ("32" if self.arch == "x86" else "64A")
         elif self.settings.os == "Linux":
             target = {"x86": "linux-x86",
@@ -290,24 +290,25 @@ class OpenSSLConan(ConanFile):
                               strict=self.in_local_cache)
 
     def _patch_runtime(self):
-        runtime = self.settings.compiler.runtime
-
         # Replace runtime in ntdll.mak and nt.mak
         def replace_runtime_in_file(filename):
+            replaced = False
             runtimes = ["MDd", "MTd", "MD", "MT"]
             for e in runtimes:
-                try:
-                    tools.replace_in_file(filename, "/%s" % e,
-                                          "/%s" % runtime, strict=self.in_local_cache)
-                    self.output.warn("replace vs runtime %s in %s" % ("/%s" % e, filename))
-                    # we found a runtime argument in the file, so we can exit the function
-                    return
-                except:
-                    pass
-            raise Exception("Could not find any vs runtime in file")
+                if e != self.settings.compiler.runtime:
+                    try:
+                        tools.replace_in_file(filename, "/%s" % e, "/%s" % self.settings.compiler.runtime,
+                                              strict=False)
+                        self.output.warn("replace vs runtime %s in %s" % ("/%s" % e, filename))
+                        replaced = True
+                    except:
+                        pass
+            tools.replace_in_file(filename, "MDdd", "MDd", strict=False)
+            tools.replace_in_file(filename, "MTdd", "MTd", strict=False)
+            if not replaced:
+                raise Exception("Could not find any vs runtime in file")
 
-        replace_runtime_in_file("%s/openssl-%s/Makefile" % (self.source_folder, self.version))
-        replace_runtime_in_file("%s/openssl-%s/Makefile.shared" % (self.source_folder, self.version))
+        replace_runtime_in_file("%s/Makefile" % self.subfolder)
 
     def visual_build(self):
         self.output.warn("----------CONFIGURING OPENSSL FOR WINDOWS. %s-------------" % self.version)
@@ -322,7 +323,7 @@ class OpenSSLConan(ConanFile):
                                                                                self._get_flags())
             self.output.warn(config_command)
             self.run_in_src(config_command)
-
+            self._patch_runtime()
             self.output.warn("----------MAKE OPENSSL %s-------------" % self.version)
             self.run_in_src("nmake build_libs")
 
@@ -339,6 +340,8 @@ class OpenSSLConan(ConanFile):
             if self.options.shared:
                 self.copy(src=self.subfolder, pattern="*libcrypto.dll.a", dst="lib", keep_path=False)
                 self.copy(src=self.subfolder, pattern="*libssl.dll.a", dst="lib", keep_path=False)
+                self.copy(src=self.subfolder, pattern="*libcrypto*.dll", dst="bin", keep_path=False)
+                self.copy(src=self.subfolder, pattern="*libssl*.dll", dst="bin", keep_path=False)
             else:
                 self.copy(src=self.subfolder, pattern="*libcrypto.a", dst="lib", keep_path=False)
                 self.copy(src=self.subfolder, pattern="*libssl.a", dst="lib", keep_path=False)
@@ -351,7 +354,6 @@ class OpenSSLConan(ConanFile):
             else:
                 self.copy("*.a", "lib", keep_path=False)
 
-        print(self.subfolder)
         self.copy(src=self.subfolder,
                   pattern="include/openssl/*.h",
                   dst="include/openssl",
@@ -359,7 +361,7 @@ class OpenSSLConan(ConanFile):
 
     def package_info(self):
         if self.compiler == "Visual Studio":
-            self.cpp_info.libs = ["ssl", "crypto", "crypt32", "msi", "ws2_32"]
+            self.cpp_info.libs = ["libssl", "libcrypto", "crypt32", "msi", "ws2_32"]
         elif self.compiler == "gcc" and self.settings.os == "Windows":
             self.cpp_info.libs = ["ssl", "crypto", "ws2_32"]
         elif self.settings.os == "Linux":
