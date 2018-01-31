@@ -358,7 +358,7 @@ class OpenSSLConan(ConanFile):
         if self.compiler == "Visual Studio":
             self.cpp_info.libs = ["libssl", "libcrypto", "crypt32", "msi", "ws2_32"]
         elif self.compiler == "gcc" and self.settings.os == "Windows":
-            self.cpp_info.libs = ["ssl", "crypto", "ws2_32"]
+            self.cpp_info.libs = ["ssl", "crypto",  "crypt32", "ws2_32"]
         elif self.settings.os == "Linux":
             self.cpp_info.libs = ["ssl", "crypto", "dl", "pthread"]
         else:
