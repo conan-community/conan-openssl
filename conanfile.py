@@ -89,13 +89,18 @@ class OpenSSLConan(ConanFile):
             raise Exception("Unsupported operating system: %s" % self.settings.os)
 
     def run_in_src(self, command, show_output=False, win_bash=False):
-        self.output.write("------RUNNING-------\n%s" % command)
         if not show_output and not tools.os_info.is_windows and tools.which("bash"):
             command += ' | while read line; do printf "%c" .; done'
             # pipe doesn't fail if first part fails
             command = 'bash -l -c -o pipefail "%s"' % command.replace('"', '\\"')
         with tools.chdir(self.subfolder):
-            self.run(command, win_bash=win_bash)
+            self.output.write("------RUNNING-------\n%s" % command)
+            if self.settings.compiler == "clang":  # Output ruin travis builds
+                from io import StringIO
+                buf = StringIO()
+            else:
+                buf = True
+            self.run(command, win_bash=win_bash, output=buf)
         self.output.writeln(" ")
 
     def _get_config_options_string(self):
