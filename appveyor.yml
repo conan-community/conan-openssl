@@ -13,6 +13,7 @@ environment:
     CONAN_STABLE_BRANCH_PATTERN: "release/*"
     CONAN_TOTAL_PAGES: 2
     CONAN_UPLOAD_ONLY_WHEN_STABLE: 1 # Will only upload when the branch matches "release/*"
+    CONAN_BUILD_POLICY: "outdated"
 
     matrix:
         - MINGW_CONFIGURATIONS: "4.9@x86_64@seh@posix"
