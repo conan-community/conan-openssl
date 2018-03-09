@@ -9,7 +9,6 @@ env:
      - CONAN_STABLE_BRANCH_PATTERN: "release/*"
      - CONAN_TOTAL_PAGES: 3
      - CONAN_UPLOAD_ONLY_WHEN_STABLE: 1 # Will only upload when the branch matches "release/*"
-     - CONAN_BUILD_POLICY: "outdated"
 
 linux: &linux
    os: linux
