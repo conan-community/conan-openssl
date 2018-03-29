@@ -96,7 +96,7 @@ class OpenSSLConan(ConanFile):
         with tools.chdir(self.subfolder):
             self.output.write("------RUNNING-------\n%s" % command)
             if self.settings.compiler == "clang":  # Output ruin travis builds
-                from io import StringIO
+                from six import StringIO
                 buf = StringIO()
             else:
                 buf = True
