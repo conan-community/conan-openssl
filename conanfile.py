@@ -224,57 +224,18 @@ class OpenSSLConan(ConanFile):
         self.run_in_src("make", show_output=True, win_bash=win_bash)
 
     def ios_build(self):
-        def call(cmd):
-            return subprocess.check_output(cmd, shell=False).strip()
-
-        def find_sysroot(sdk_name):
-            return call(["xcrun", "--show-sdk-path", "-sdk", sdk_name])
-
-        def find_program(program, sdk_name=None):
-            args = ["xcrun", "--find", program]
-            if sdk_name:
-                args.extend(["-sdk", sdk_name])
-            return call(args)
-
-        def to_apple_arch(arch):
-            """converts conan-style architecture into Apple-style arch"""
-            return {'x86': 'i386',
-                    'x86_64': 'x86_64',
-                    'armv7': 'armv7',
-                    'armv8': 'arm64',
-                    'armv7s': 'armv7s',
-                    'armv7k': 'armv7k'}.get(str(arch))
-
-        def apple_sdk_name(settings):
-            """returns proper SDK name suitable for OS and architecture
-            we're building for (considering simulators)"""
-            arch = settings.get_safe('arch')
-            _os = settings.get_safe('os')
-            if str(arch).startswith('x86'):
-                return {'Macos': 'macosx',
-                        'iOS': 'iphonesimulator',
-                        'watchOS': 'watchsimulator',
-                        'tvOS': 'appletvsimulator'}.get(str(_os))
-            elif str(arch).startswith('arm'):
-                return {'iOS': 'iphoneos',
-                        'watchOS': 'watchos',
-                        'tvOS': 'appletvos'}.get(str(_os))
-            else:
-                return None
-
         config_options_string = self._get_config_options_string()
         command = "./Configure iphoneos-cross %s" % config_options_string
 
-        sdk = apple_sdk_name(self.settings)
-        sysroot = find_sysroot(sdk)
-        cc = find_program("clang", sdk)
+        xcrun = tools.XCRun(self.settings)
+        cc = xcrun.find("clang")
 
-        cc += " -arch %s" % to_apple_arch(self.arch)
+        cc += " -arch %s" % tools.to_apple_arch(self.arch)
         if not str(self.arch).startswith("arm"):
             cc += " -DOPENSSL_NO_ASM"
 
-        os.environ["CROSS_SDK"] = os.path.basename(sysroot)
-        os.environ["CROSS_TOP"] = os.path.dirname(os.path.dirname(sysroot))
+        os.environ["CROSS_SDK"] = os.path.basename(xcrun.sdk_path)
+        os.environ["CROSS_TOP"] = os.path.dirname(os.path.dirname(xcrun.sdk_path))
 
         command = 'CC="%s" %s' % (cc, command)
 
