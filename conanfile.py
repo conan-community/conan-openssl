@@ -1,12 +1,11 @@
 from conans import ConanFile, AutoToolsBuildEnvironment
 from conans import tools
 import os
-import subprocess
 
 
 class OpenSSLConan(ConanFile):
     name = "OpenSSL"
-    version = "1.1.0g"
+    version = "1.1.0i"
     settings = "os", "compiler", "arch", "build_type"
     url = "http://github.com/lasote/conan-openssl"
     license = "The current OpenSSL licence is an 'Apache style' license: https://www.openssl.org/source/license.html"
@@ -55,7 +54,7 @@ class OpenSSLConan(ConanFile):
             tools.download(self.source_tgz, "openssl.tar.gz")
         tools.unzip("openssl.tar.gz")
         tools.check_sha256("openssl.tar.gz",
-                           "de4d501267da39310905cb6dc8c6121f7a2cad45a7707f76df828fe1b85073af")
+                           "ebbfc844a8c8cc0ea5dc10b86c9ce97f401837f3fa08c17b2cdadc118253cf99")
         os.unlink("openssl.tar.gz")
 
     def configure(self):
