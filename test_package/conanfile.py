@@ -24,5 +24,5 @@ class DefaultNameConan(ConanFile):
 
     def test(self):
         if not tools.cross_building(self.settings):
-            self.run("cd bin && .%smd5" % os.sep)
+            self.run("cd bin && .%sdigest" % os.sep)
         assert os.path.exists(os.path.join(self.deps_cpp_info["OpenSSL"].rootpath, "LICENSE"))
