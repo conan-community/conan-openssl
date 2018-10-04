@@ -53,7 +53,7 @@ void SHA3_256(const unsigned char *message, size_t message_len, unsigned char **
 	EVP_MD_CTX_destroy(mdctx);
 }
 
-unsigned int SHA3_512(const unsigned char *message, size_t message_len, unsigned char **digest, unsigned int *digest_len) {
+void SHA3_512(const unsigned char *message, size_t message_len, unsigned char **digest, unsigned int *digest_len) {
 	EVP_MD_CTX *mdctx;
 
 	if((mdctx = EVP_MD_CTX_create()) == NULL)
