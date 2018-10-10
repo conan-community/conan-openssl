@@ -244,9 +244,9 @@ class OpenSSLConan(ConanFile):
         self.run_in_src("make")
 
     def _patch_install_name(self):
-        old_str = '-install_name $(INSTALLTOP)/$(LIBDIR)/$(SHLIBNAME_FULL)'
-        new_str = '-install_name $(SHLIBNAME_FULL)'
-        tools.replace_in_file("%s/Makefile.shared" % self.subfolder, old_str, new_str,
+        old_str = '-install_name $(INSTALLTOP)/$(LIBDIR)/'
+        new_str = '-install_name '
+        tools.replace_in_file("%s/Makefile" % self.subfolder, old_str, new_str,
                               strict=self.in_local_cache)
 
     def _patch_runtime(self):
