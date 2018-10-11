@@ -33,7 +33,8 @@ class OpenSSLConan(ConanFile):
                "no_rc5": [True, False],
                "no_rsa": [True, False],
                "no_sha": [True, False],
-               "no_fpic": [True, False]}
+               "no_fpic": [True, False],
+               "no_async": [True, False]}
     default_options = "=False\n".join(options.keys()) + "=False"
 
     # When a new version is available they move the tar.gz to old/ location
