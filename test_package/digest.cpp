@@ -8,6 +8,10 @@
 #include <openssl/ssl.h>
 #include <zlib.h>
 
+#if defined(_MSC_VER) && _MSC_VER < 1900
+#define snprintf _snprintf
+#endif
+
 void SHA3_hash(const EVP_MD *type, const unsigned char *message, size_t message_len, unsigned char *digest, unsigned int *digest_len) {
 	EVP_MD_CTX *mdctx;
 
