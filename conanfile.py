@@ -295,6 +295,10 @@ class OpenSSLConan(ConanFile):
             self.copy(pattern="*.lib", dst="lib", keep_path=False)
             self.copy(pattern="*.dll", dst="bin", keep_path=False)
             self.copy(pattern="*.h", dst="include/openssl/", src="binaries/include/", keep_path=False)
+            if self.settings.build_type == 'Debug':
+                with tools.chdir(os.path.join(self.package_folder, 'lib')):
+                    os.rename('libssl.lib', 'libssld.lib')
+                    os.rename('libcrypto.lib', 'libcryptod.lib')
         elif self.settings.os == "Windows" and self.compiler == "gcc":
             self.copy(src=self.subfolder, pattern="include/*", dst="include/openssl/", keep_path=False)
             if self.options.shared:
@@ -321,7 +325,9 @@ class OpenSSLConan(ConanFile):
 
     def package_info(self):
         if self.compiler == "Visual Studio":
-            self.cpp_info.libs = ["libssl", "libcrypto", "crypt32", "msi", "ws2_32"]
+            self.cpp_info.libs = ['libssld', 'libcryptod'] if self.settings.build_type == 'Debug' else \
+                ['libssl', 'libcrypto']
+            self.cpp_info.libs.extend(["crypt32", "msi", "ws2_32"])
         elif self.compiler == "gcc" and self.settings.os == "Windows":
             self.cpp_info.libs = ["ssl", "crypto",  "crypt32", "ws2_32"]
         elif self.settings.os == "Linux":
