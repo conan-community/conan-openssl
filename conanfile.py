@@ -5,7 +5,7 @@ import os
 
 class OpenSSLConan(ConanFile):
     name = "OpenSSL"
-    version = "1.1.0i"
+    version = "1.1.1"
     settings = "os", "compiler", "arch", "build_type"
     url = "http://github.com/lasote/conan-openssl"
     license = "The current OpenSSL licence is an 'Apache style' license: https://www.openssl.org/source/license.html"
@@ -54,7 +54,7 @@ class OpenSSLConan(ConanFile):
             tools.download(self.source_tgz, "openssl.tar.gz")
         tools.unzip("openssl.tar.gz")
         tools.check_sha256("openssl.tar.gz",
-                           "ebbfc844a8c8cc0ea5dc10b86c9ce97f401837f3fa08c17b2cdadc118253cf99")
+                           "2836875a0f89c03d0fdf483941512613a50cfb421d6fd94b9f41d7279d586a3d")
         os.unlink("openssl.tar.gz")
 
     def configure(self):
@@ -244,9 +244,9 @@ class OpenSSLConan(ConanFile):
         self.run_in_src("make")
 
     def _patch_install_name(self):
-        old_str = '-install_name $(INSTALLTOP)/$(LIBDIR)/$(SHLIBNAME_FULL)'
-        new_str = '-install_name $(SHLIBNAME_FULL)'
-        tools.replace_in_file("%s/Makefile.shared" % self.subfolder, old_str, new_str,
+        old_str = '-install_name $(INSTALLTOP)/$(LIBDIR)/'
+        new_str = '-install_name '
+        tools.replace_in_file("%s/Makefile" % self.subfolder, old_str, new_str,
                               strict=self.in_local_cache)
 
     def _patch_runtime(self):
@@ -295,6 +295,10 @@ class OpenSSLConan(ConanFile):
             self.copy(pattern="*.lib", dst="lib", keep_path=False)
             self.copy(pattern="*.dll", dst="bin", keep_path=False)
             self.copy(pattern="*.h", dst="include/openssl/", src="binaries/include/", keep_path=False)
+            if self.settings.build_type == 'Debug':
+                with tools.chdir(os.path.join(self.package_folder, 'lib')):
+                    os.rename('libssl.lib', 'libssld.lib')
+                    os.rename('libcrypto.lib', 'libcryptod.lib')
         elif self.settings.os == "Windows" and self.compiler == "gcc":
             self.copy(src=self.subfolder, pattern="include/*", dst="include/openssl/", keep_path=False)
             if self.options.shared:
@@ -321,7 +325,9 @@ class OpenSSLConan(ConanFile):
 
     def package_info(self):
         if self.compiler == "Visual Studio":
-            self.cpp_info.libs = ["libssl", "libcrypto", "crypt32", "msi", "ws2_32"]
+            self.cpp_info.libs = ['libssld', 'libcryptod'] if self.settings.build_type == 'Debug' else \
+                ['libssl', 'libcrypto']
+            self.cpp_info.libs.extend(["crypt32", "msi", "ws2_32"])
         elif self.compiler == "gcc" and self.settings.os == "Windows":
             self.cpp_info.libs = ["ssl", "crypto",  "crypt32", "ws2_32"]
         elif self.settings.os == "Linux":
