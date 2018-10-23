@@ -223,7 +223,7 @@ class OpenSSLConan(ConanFile):
         self.run_in_src("make", show_output=True, win_bash=win_bash)
 
     def ios_build(self):
-        config_options_string = self._get_config_options_string()
+        config_options_string = self._get_flags()
         command = "./Configure iphoneos-cross %s" % config_options_string
 
         xcrun = tools.XCRun(self.settings)
