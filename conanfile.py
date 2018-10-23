@@ -233,6 +233,14 @@ class OpenSSLConan(ConanFile):
         if not str(self.arch).startswith("arm"):
             cc += " -DOPENSSL_NO_ASM"
 
+        try:
+            cc += " -mios-version-min=%s" % self.settings.os.version
+            self.output.info("iOS deployment target: %s" % self.settings.os.version)
+        except:
+            pass
+
+        cc += " -fembed-bitcode"
+
         os.environ["CROSS_SDK"] = os.path.basename(xcrun.sdk_path)
         os.environ["CROSS_TOP"] = os.path.dirname(os.path.dirname(xcrun.sdk_path))
 
