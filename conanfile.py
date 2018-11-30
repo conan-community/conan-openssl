@@ -1,6 +1,7 @@
 from conans import ConanFile, AutoToolsBuildEnvironment
 from conans import tools
 import os
+import sys
 
 
 class OpenSSLConan(ConanFile):
@@ -211,7 +212,7 @@ class OpenSSLConan(ConanFile):
                 tools.replace_in_file(makefile, "-mandroid", "", strict=self.in_local_cache)
 
     def unix_build(self):
-        win_bash = self.settings.os == "Windows"
+        win_bash = sys.platform == "win32"
         target = self._get_target()
 
         self.run_in_src("./Configure %s %s" % (target, self._get_flags()), win_bash=win_bash)
