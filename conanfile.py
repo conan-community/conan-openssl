@@ -166,12 +166,13 @@ class OpenSSLConan(ConanFile):
             target = {"x86": "darwin-i386-cc",
                       "x86_64": "darwin64-x86_64-cc"}.get(str(self.arch))
         elif self.settings.os == "Android":
-            target = {"armv7": "android-armeabi",
-                      "armv7hf": "android-armeabi",
-                      "armv8": "android64-aarch64",
+            target = {"armv7": "android-arm",
+                      "armv7hf": "android-arm",
+                      "armv8": "android64-arm64",
                       "x86": "android-x86",
-                      "x86_64": "android64",
-                      "mips": "android-mips"}.get(str(self.arch), None)
+                      "x86_64": "android-x86_64",
+                      "mips": "android-mips",
+                      "mips64": "anroid-mips64"}.get(str(self.arch), None)
             if not target:
                 raise Exception("Unsupported arch for android")
         elif self.settings.os == "SunOS":
@@ -207,9 +208,6 @@ class OpenSSLConan(ConanFile):
             self._patch_install_name()
         if self.settings.os == "Android":
             makefile = os.path.join(self.subfolder, "Makefile")
-            tools.replace_in_file(makefile, "--sysroot=$(CROSS_SYSROOT)", "")
-            if self.settings.compiler == "clang":
-                tools.replace_in_file(makefile, "-mandroid", "", strict=self.in_local_cache)
 
     def unix_build(self):
         win_bash = sys.platform == "win32"
