@@ -16,6 +16,16 @@ environment:
     CONAN_BUILD_POLICY: "outdated"
 
     matrix:
+        - MINGW_CONFIGURATIONS: "4.9@x86@dwarf2@posix"
+          CONAN_BUILD_REQUIRES: "msys2_installer/latest@bincrafters/stable"
+          CONAN_REMOTES: "https://api.bintray.com/conan/bincrafters/public-conan"
+          CONAN_CURRENT_PAGE: 1
+
+        - MINGW_CONFIGURATIONS: "4.9@x86@dwarf2@posix"
+          CONAN_BUILD_REQUIRES: "msys2_installer/latest@bincrafters/stable"
+          CONAN_REMOTES: "https://api.bintray.com/conan/bincrafters/public-conan"
+          CONAN_CURRENT_PAGE: 2
+          
         - MINGW_CONFIGURATIONS: "4.9@x86_64@seh@posix"
           CONAN_BUILD_REQUIRES: "msys2_installer/latest@bincrafters/stable"
           CONAN_REMOTES: "https://api.bintray.com/conan/bincrafters/public-conan"
@@ -25,13 +35,33 @@ environment:
           CONAN_BUILD_REQUIRES: "msys2_installer/latest@bincrafters/stable"
           CONAN_REMOTES: "https://api.bintray.com/conan/bincrafters/public-conan"
           CONAN_CURRENT_PAGE: 2
+          
+        - MINGW_CONFIGURATIONS: "5@xx86@dwarf2@posix"
+          CONAN_BUILD_REQUIRES: "msys2_installer/latest@bincrafters/stable"
+          CONAN_REMOTES: "https://api.bintray.com/conan/bincrafters/public-conan"
+          CONAN_CURRENT_PAGE: 1
 
+        - MINGW_CONFIGURATIONS: "5@x86@dwarf2@posix"
+          CONAN_BUILD_REQUIRES: "msys2_installer/latest@bincrafters/stable"
+          CONAN_REMOTES: "https://api.bintray.com/conan/bincrafters/public-conan"
+          CONAN_CURRENT_PAGE: 2
+          
         - MINGW_CONFIGURATIONS: "5@x86_64@seh@posix"
           CONAN_BUILD_REQUIRES: "msys2_installer/latest@bincrafters/stable"
           CONAN_REMOTES: "https://api.bintray.com/conan/bincrafters/public-conan"
           CONAN_CURRENT_PAGE: 1
 
         - MINGW_CONFIGURATIONS: "5@x86_64@seh@posix"
+          CONAN_BUILD_REQUIRES: "msys2_installer/latest@bincrafters/stable"
+          CONAN_REMOTES: "https://api.bintray.com/conan/bincrafters/public-conan"
+          CONAN_CURRENT_PAGE: 2
+
+        - MINGW_CONFIGURATIONS: "6@x86@dwarf2@posix"
+          CONAN_BUILD_REQUIRES: "msys2_installer/latest@bincrafters/stable"
+          CONAN_REMOTES: "https://api.bintray.com/conan/bincrafters/public-conan"
+          CONAN_CURRENT_PAGE: 1
+
+        - MINGW_CONFIGURATIONS: "6@x86@dwarf2@posix"
           CONAN_BUILD_REQUIRES: "msys2_installer/latest@bincrafters/stable"
           CONAN_REMOTES: "https://api.bintray.com/conan/bincrafters/public-conan"
           CONAN_CURRENT_PAGE: 2
@@ -46,12 +76,42 @@ environment:
           CONAN_REMOTES: "https://api.bintray.com/conan/bincrafters/public-conan"
           CONAN_CURRENT_PAGE: 2
 
+        - MINGW_CONFIGURATIONS: "7@x86@dwarf2@posix"
+          CONAN_BUILD_REQUIRES: "msys2_installer/latest@bincrafters/stable"
+          CONAN_REMOTES: "https://api.bintray.com/conan/bincrafters/public-conan"
+          CONAN_CURRENT_PAGE: 1
+
+        - MINGW_CONFIGURATIONS: "7@x86@dwarf2@posix"
+          CONAN_BUILD_REQUIRES: "msys2_installer/latest@bincrafters/stable"
+          CONAN_REMOTES: "https://api.bintray.com/conan/bincrafters/public-conan"
+          CONAN_CURRENT_PAGE: 2
+
         - MINGW_CONFIGURATIONS: "7@x86_64@seh@posix"
           CONAN_BUILD_REQUIRES: "msys2_installer/latest@bincrafters/stable"
           CONAN_REMOTES: "https://api.bintray.com/conan/bincrafters/public-conan"
           CONAN_CURRENT_PAGE: 1
 
         - MINGW_CONFIGURATIONS: "7@x86_64@seh@posix"
+          CONAN_BUILD_REQUIRES: "msys2_installer/latest@bincrafters/stable"
+          CONAN_REMOTES: "https://api.bintray.com/conan/bincrafters/public-conan"
+          CONAN_CURRENT_PAGE: 2
+
+        - MINGW_CONFIGURATIONS: "8@x86@dwarf2@posix"
+          CONAN_BUILD_REQUIRES: "msys2_installer/latest@bincrafters/stable"
+          CONAN_REMOTES: "https://api.bintray.com/conan/bincrafters/public-conan"
+          CONAN_CURRENT_PAGE: 1
+
+        - MINGW_CONFIGURATIONS: "8@x86@dwarf2@posix"
+          CONAN_BUILD_REQUIRES: "msys2_installer/latest@bincrafters/stable"
+          CONAN_REMOTES: "https://api.bintray.com/conan/bincrafters/public-conan"
+          CONAN_CURRENT_PAGE: 2
+
+        - MINGW_CONFIGURATIONS: "8@x86_64@seh@posix"
+          CONAN_BUILD_REQUIRES: "msys2_installer/latest@bincrafters/stable"
+          CONAN_REMOTES: "https://api.bintray.com/conan/bincrafters/public-conan"
+          CONAN_CURRENT_PAGE: 1
+
+        - MINGW_CONFIGURATIONS: "8@x86_64@seh@posix"
           CONAN_BUILD_REQUIRES: "msys2_installer/latest@bincrafters/stable"
           CONAN_REMOTES: "https://api.bintray.com/conan/bincrafters/public-conan"
           CONAN_CURRENT_PAGE: 2
