@@ -168,11 +168,11 @@ class OpenSSLConan(ConanFile):
         elif self.settings.os == "Android":
             target = {"armv7": "android-arm",
                       "armv7hf": "android-arm",
-                      "armv8": "android64-arm64",
+                      "armv8": "android-arm64",
                       "x86": "android-x86",
                       "x86_64": "android-x86_64",
                       "mips": "android-mips",
-                      "mips64": "anroid-mips64"}.get(str(self.arch), None)
+                      "mips64": "android-mips64"}.get(str(self.arch), None)
             if not target:
                 raise Exception("Unsupported arch for android")
         elif self.settings.os == "SunOS":
