@@ -140,6 +140,10 @@ class OpenSSLConan(ConanFile):
             extra_flags = "--debug" if self.settings.build_type == "Debug" else "--release"
             extra_flags += " no-shared" if not self.options.shared else " shared"
 
+        if self.settings.os == "Android":
+            # see NOTES.ANDROID
+            extra_flags += " -D__ANDROID_API__=%s" % str(self.settings.os.api_level)
+
         extra_flags += self._get_config_options_string()
         return extra_flags
 
