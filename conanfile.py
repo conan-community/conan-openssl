@@ -95,7 +95,7 @@ class OpenSSLConan(ConanFile):
             command = 'bash -l -c -o pipefail "%s"' % command.replace('"', '\\"')
         with tools.chdir(self.subfolder):
             self.output.write("------RUNNING-------\n%s" % command)
-            if self.settings.compiler == "clang":  # Output ruin travis builds
+            if self.settings.compiler == "clang" and "TRAVIS" in os.environ:  # Output ruin travis builds
                 from six import StringIO
                 buf = StringIO()
             else:
