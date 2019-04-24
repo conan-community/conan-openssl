@@ -130,6 +130,14 @@ class OpenSSLConan(ConanFile):
 
         if self.settings.os != "Windows":
             env_build = AutoToolsBuildEnvironment(self)
+            if self.settings.os == "iOS":
+                # in OpenSSL 1.1.1x having the following args "offends" (sic) the Configure script
+                env_build.flags.remove("-arch")
+                if "armv7" in env_build.flags:
+                    env_build.flags.remove("armv7")
+                if "armv8" in env_build.flags:
+                    env_build.flags.remove("armv8")
+                    
             extra_flags = ' '.join(env_build.flags)
             extra_flags += " -fPIC" if not self.options.no_fpic else ""
             if self.settings.build_type == "Debug":
