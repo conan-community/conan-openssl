@@ -155,6 +155,7 @@ class OpenSSLConan(ConanFile):
         elif self.settings.os == "Linux":
             target = {"x86": "linux-x86",
                       "x86_64": "linux-x86_64",
+                      "armv6": "linux-armv4",
                       "armv7": "linux-armv4",
                       "armv7hf": "linux-armv4",
                       "armv8": "linux-aarch64",
