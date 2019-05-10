@@ -224,7 +224,7 @@ class OpenSSLConan(ConanFile):
         self._patch_makefile()
 
         self.output.warn("----------MAKE OPENSSL %s-------------" % self.version)
-        self.run_in_src("make", show_output=True, win_bash=win_bash)
+        self.run_in_src("make -j%s" % tools.cpu_count(), show_output=True, win_bash=win_bash)
 
     def ios_build(self):
         config_options_string = self._get_flags()
@@ -253,7 +253,7 @@ class OpenSSLConan(ConanFile):
         self.run_in_src(command)
         self._patch_install_name()
         self.output.warn("----------MAKE OPENSSL %s-------------" % self.version)
-        self.run_in_src("make")
+        self.run_in_src("make -j%s" % tools.cpu_count())
 
     def _patch_install_name(self):
         old_str = '-install_name $(INSTALLTOP)/$(LIBDIR)/'
