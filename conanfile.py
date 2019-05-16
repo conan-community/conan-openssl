@@ -137,6 +137,8 @@ class OpenSSLConan(ConanFile):
                     env_build.flags.remove("armv7")
                 if "armv8" in env_build.flags:
                     env_build.flags.remove("armv8")
+                if "arm64" in env_build.flags:
+                    env_build.flags.remove("arm64")
                     
             extra_flags = ' '.join(env_build.flags)
             extra_flags += " -fPIC" if not self.options.no_fpic else ""
