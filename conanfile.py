@@ -223,8 +223,6 @@ class OpenSSLConan(ConanFile):
     def _patch_makefile(self):
         if self.settings.os == "Macos":
             self._patch_install_name()
-        if self.settings.os == "Android":
-            makefile = os.path.join(self.subfolder, "Makefile")
 
     def unix_build(self):
         win_bash = sys.platform == "win32"
