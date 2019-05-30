@@ -87,6 +87,8 @@ class OpenSSLConan(ConanFile):
             self.ios_build()
         elif self.compiler == "Visual Studio":
             self.visual_build()
+        elif self.settings.os == "Emscripten":
+            self.emscripten_build()
         else:
             raise Exception("Unsupported operating system: %s" % self.settings.os)
 
@@ -155,6 +157,8 @@ class OpenSSLConan(ConanFile):
         if self.settings.os == "Android":
             # see NOTES.ANDROID
             extra_flags += " -D__ANDROID_API__=%s" % str(self.settings.os.api_level)
+        if self.settings.os == "Emscripten":
+            extra_flags += " CROSS_COMPILE= -no-asm -D__STDC_NO_ATOMICS__=1"
 
         extra_flags += self._get_config_options_string()
         return extra_flags
@@ -223,6 +227,11 @@ class OpenSSLConan(ConanFile):
     def _patch_makefile(self):
         if self.settings.os == "Macos":
             self._patch_install_name()
+
+    def emscripten_build(self):
+        win_bash = sys.platform == "win32"
+        self.run_in_src("emconfigure ./Configure cc %s" % self._get_flags(), win_bash=win_bash)
+        self.run_in_src("emmake make")
 
     def unix_build(self):
         win_bash = sys.platform == "win32"
