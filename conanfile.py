@@ -337,15 +337,20 @@ class OpenSSLConan(ConanFile):
                 self.copy(src=self.subfolder, pattern="*libssl.dll.a", dst="lib", keep_path=False)
                 self.copy(src=self.subfolder, pattern="*libcrypto*.dll", dst="bin", keep_path=False)
                 self.copy(src=self.subfolder, pattern="*libssl*.dll", dst="bin", keep_path=False)
+                self.copy(pattern="*.dll", dst="bin/engines", src="binaries/lib/engines", keep_path=True)
             else:
                 self.copy(src=self.subfolder, pattern="*libcrypto.a", dst="lib", keep_path=False)
                 self.copy(src=self.subfolder, pattern="*libssl.a", dst="lib", keep_path=False)
         else:
             if self.options.shared:
-                self.copy(pattern="*libcrypto*.dylib", dst="lib", keep_path=False)
-                self.copy(pattern="*libssl*.dylib", dst="lib", keep_path=False)
+                self.copy(pattern="*libcrypto*.dylib", dst="lib", keep_path=False, symlinks=True)
+                self.copy(pattern="*libssl*.dylib", dst="lib", keep_path=False, symlinks=True)
+                self.copy(pattern="*.dylib", src=os.path.join(self.subfolder, "engines"),
+                          dst="bin/engines", keep_path=True)
                 self.copy(pattern="*libcrypto.so*", dst="lib", keep_path=False, symlinks=True)
                 self.copy(pattern="*libssl.so*", dst="lib", keep_path=False, symlinks=True)
+                self.copy(pattern="*.so", src=os.path.join(self.subfolder, "engines"),
+                          dst="bin/engines", keep_path=True)
             else:
                 self.copy("*.a", "lib", keep_path=False)
 
