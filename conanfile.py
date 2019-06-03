@@ -236,8 +236,8 @@ class OpenSSLConan(ConanFile):
 
     def emscripten_build(self):
         win_bash = sys.platform == "win32"
-        self.run_in_src("emconfigure ./Configure cc %s" % self._get_flags(), win_bash=win_bash)
-        self.run_in_src("emmake make")
+        self.run_in_src("emconfigure ./Configure cc %s" % self._get_flags() show_output=True, win_bash=win_bash)
+        self.run_in_src("emmake make" show_output=True, win_bash=win_bash)
 
     def unix_build(self):
         win_bash = sys.platform == "win32"
