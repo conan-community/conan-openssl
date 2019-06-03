@@ -35,7 +35,8 @@ class OpenSSLConan(ConanFile):
                "no_sha": [True, False],
                "no_fpic": [True, False],
                "no_async": [True, False],
-               "no_dso": [True, False]}
+               "no_dso": [True, False],
+               "capieng_dialog": [True, False]}
     default_options = "=False\n".join(options.keys()) + "=False"
 
     # When a new version is available they move the tar.gz to old/ location
@@ -62,6 +63,10 @@ class OpenSSLConan(ConanFile):
 
     def configure(self):
         del self.settings.compiler.libcxx
+
+    def config_options(self):
+        if self.settings.os != "Windows":
+            del self.options.capieng_dialog
 
     def requirements(self):
         if not self.options.no_zlib:
@@ -153,7 +158,8 @@ class OpenSSLConan(ConanFile):
         else:
             extra_flags = "--debug" if self.settings.build_type == "Debug" else "--release"
             extra_flags += " no-shared" if not self.options.shared else " shared"
-
+            if self.options.capieng_dialog:
+                extra_flags += " -DOPENSSL_CAPIENG_DIALOG=1"
         if self.settings.os == "Android":
             # see NOTES.ANDROID
             extra_flags += " -D__ANDROID_API__=%s" % str(self.settings.os.api_level)
