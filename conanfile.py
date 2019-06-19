@@ -7,12 +7,15 @@ import sys
 class OpenSSLConan(ConanFile):
     name = "OpenSSL"
     version = "1.1.1c"
-    settings = "os", "compiler", "arch", "build_type"
-    url = "http://github.com/lasote/conan-openssl"
-    license = "The current OpenSSL licence is an 'Apache style' license: https://www.openssl.org/source/license.html"
     description = "OpenSSL is an open source project that provides a robust, commercial-grade, and full-featured " \
                   "toolkit for the Transport Layer Security (TLS) and Secure Sockets Layer (SSL) protocols"
-    # https://github.com/openssl/openssl/blob/OpenSSL_1_0_2l/INSTALL
+    topics = ("conan", "openssl", "tls", "encryption")
+    url = "http://github.com/conan-community/conan-openssl"
+    homepage = "https://www.openssl.org"
+    author = "Conan Community"
+    license = "The current OpenSSL licence is an 'Apache style' license: https://www.openssl.org/source/license.html"
+    settings = "os", "compiler", "arch", "build_type"
+    # https://github.com/openssl/openssl/blob/OpenSSL_1_1_1c/INSTALL
     options = {"no_threads": [True, False],
                "no_zlib": [True, False],
                "shared": [True, False],
@@ -41,7 +44,7 @@ class OpenSSLConan(ConanFile):
 
     # When a new version is available they move the tar.gz to old/ location
     source_tgz = "https://www.openssl.org/source/openssl-%s.tar.gz" % version
-    source_tgz_old = "https://www.openssl.org/source/old/1.1.0/openssl-%s.tar.gz" % version
+    source_tgz_old = "https://www.openssl.org/source/old/1.1.1/openssl-%s.tar.gz" % version
 
     def build_requirements(self):
         # useful for example for conditional build_requires
