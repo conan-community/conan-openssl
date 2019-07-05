@@ -1,116 +1,79 @@
+---
+os: osx
+language: generic
 
 env:
-   global:
-     - CONAN_REFERENCE: "OpenSSL/1.1.1c"
-     - CONAN_USERNAME: "conan"
-     - CONAN_LOGIN_USERNAME: "conanbot"
-     - CONAN_CHANNEL: "testing"
-     - CONAN_UPLOAD: "https://api.bintray.com/conan/conan-community/conan"
-     - CONAN_STABLE_BRANCH_PATTERN: "release/*"
-     - CONAN_TOTAL_PAGES: 3
-     - CONAN_UPLOAD_ONLY_WHEN_STABLE: 1 # Will only upload when the branch matches "release/*"
+  global:
+    - CONAN_TOTAL_PAGES: 2
 
-linux: &linux
-   os: linux
-   dist: xenial
-   language: python
-   python: "3.7"
-   services:
-     - docker
-osx: &osx
-   os: osx
-   language: generic
-matrix:
-   include:
-      - <<: *linux
-        env: CONAN_GCC_VERSIONS=4.9 CONAN_DOCKER_IMAGE=conanio/gcc49 CONAN_CURRENT_PAGE=1
-      - <<: *linux
-        env: CONAN_GCC_VERSIONS=4.9 CONAN_DOCKER_IMAGE=conanio/gcc49 CONAN_CURRENT_PAGE=2
-      - <<: *linux
-        env: CONAN_GCC_VERSIONS=4.9 CONAN_DOCKER_IMAGE=conanio/gcc49 CONAN_CURRENT_PAGE=3
-      - <<: *linux
-        env: CONAN_GCC_VERSIONS=5 CONAN_DOCKER_IMAGE=conanio/gcc5 CONAN_CURRENT_PAGE=1
-      - <<: *linux
-        env: CONAN_GCC_VERSIONS=5 CONAN_DOCKER_IMAGE=conanio/gcc5 CONAN_CURRENT_PAGE=2
-      - <<: *linux
-        env: CONAN_GCC_VERSIONS=5 CONAN_DOCKER_IMAGE=conanio/gcc5 CONAN_CURRENT_PAGE=3
-      - <<: *linux
-        env: CONAN_GCC_VERSIONS=6 CONAN_DOCKER_IMAGE=conanio/gcc6 CONAN_CURRENT_PAGE=1
-      - <<: *linux
-        env: CONAN_GCC_VERSIONS=6 CONAN_DOCKER_IMAGE=conanio/gcc6 CONAN_CURRENT_PAGE=2
-      - <<: *linux
-        env: CONAN_GCC_VERSIONS=6 CONAN_DOCKER_IMAGE=conanio/gcc6 CONAN_CURRENT_PAGE=3
-      - <<: *linux
-        env: CONAN_GCC_VERSIONS=7 CONAN_DOCKER_IMAGE=conanio/gcc7 CONAN_CURRENT_PAGE=1
-      - <<: *linux
-        env: CONAN_GCC_VERSIONS=7 CONAN_DOCKER_IMAGE=conanio/gcc7 CONAN_CURRENT_PAGE=2
-      - <<: *linux
-        env: CONAN_GCC_VERSIONS=7 CONAN_DOCKER_IMAGE=conanio/gcc7 CONAN_CURRENT_PAGE=3
-      - <<: *linux
-        env: CONAN_GCC_VERSIONS=8 CONAN_DOCKER_IMAGE=conanio/gcc8 CONAN_CURRENT_PAGE=1
-      - <<: *linux
-        env: CONAN_GCC_VERSIONS=8 CONAN_DOCKER_IMAGE=conanio/gcc8 CONAN_CURRENT_PAGE=2
-      - <<: *linux
-        env: CONAN_GCC_VERSIONS=8 CONAN_DOCKER_IMAGE=conanio/gcc8 CONAN_CURRENT_PAGE=3
-      - <<: *linux
-        env: CONAN_CLANG_VERSIONS=3.9 CONAN_DOCKER_IMAGE=conanio/clang39 CONAN_CURRENT_PAGE=1 CONAN_TOTAL_PAGES=2
-      - <<: *linux
-        env: CONAN_CLANG_VERSIONS=3.9 CONAN_DOCKER_IMAGE=conanio/clang39 CONAN_CURRENT_PAGE=2 CONAN_TOTAL_PAGES=2
-      - <<: *linux
-        env: CONAN_CLANG_VERSIONS=4.0 CONAN_DOCKER_IMAGE=conanio/clang40 CONAN_CURRENT_PAGE=1 CONAN_TOTAL_PAGES=2
-      - <<: *linux
-        env: CONAN_CLANG_VERSIONS=4.0 CONAN_DOCKER_IMAGE=conanio/clang40 CONAN_CURRENT_PAGE=2 CONAN_TOTAL_PAGES=2
-      - <<: *linux
-        env: CONAN_CLANG_VERSIONS=5.0 CONAN_DOCKER_IMAGE=conanio/clang50 CONAN_CURRENT_PAGE=1 CONAN_TOTAL_PAGES=2
-      - <<: *linux
-        env: CONAN_CLANG_VERSIONS=5.0 CONAN_DOCKER_IMAGE=conanio/clang50 CONAN_CURRENT_PAGE=2 CONAN_TOTAL_PAGES=2
-      - <<: *linux
-        env: CONAN_CLANG_VERSIONS=6.0 CONAN_DOCKER_IMAGE=conanio/clang60 CONAN_CURRENT_PAGE=1 CONAN_TOTAL_PAGES=2
-      - <<: *linux
-        env: CONAN_CLANG_VERSIONS=6.0 CONAN_DOCKER_IMAGE=conanio/clang60 CONAN_CURRENT_PAGE=2 CONAN_TOTAL_PAGES=2
-      - <<: *linux
-        env: CONAN_CLANG_VERSIONS=7.0 CONAN_DOCKER_IMAGE=conanio/clang7 CONAN_CURRENT_PAGE=1 CONAN_TOTAL_PAGES=2
-      - <<: *linux
-        env: CONAN_CLANG_VERSIONS=7.0 CONAN_DOCKER_IMAGE=conanio/clang7 CONAN_CURRENT_PAGE=2 CONAN_TOTAL_PAGES=2
-      - <<: *linux
-        env: CONAN_CLANG_VERSIONS=8 CONAN_DOCKER_IMAGE=conanio/clang8 CONAN_CURRENT_PAGE=1 CONAN_TOTAL_PAGES=2
-      - <<: *linux
-        env: CONAN_CLANG_VERSIONS=8 CONAN_DOCKER_IMAGE=conanio/clang8 CONAN_CURRENT_PAGE=2 CONAN_TOTAL_PAGES=2
-      - <<: *osx
-        osx_image: xcode7.3
-        env: CONAN_APPLE_CLANG_VERSIONS=7.3 CONAN_CURRENT_PAGE=1 CONAN_TOTAL_PAGES=2
-      - <<: *osx
-        osx_image: xcode7.3
-        env: CONAN_APPLE_CLANG_VERSIONS=7.3 CONAN_CURRENT_PAGE=2 CONAN_TOTAL_PAGES=2
-      - <<: *osx
-        osx_image: xcode8.3
-        env: CONAN_APPLE_CLANG_VERSIONS=8.1 CONAN_CURRENT_PAGE=1 CONAN_TOTAL_PAGES=2
-      - <<: *osx
-        osx_image: xcode8.3
-        env: CONAN_APPLE_CLANG_VERSIONS=8.1 CONAN_CURRENT_PAGE=2 CONAN_TOTAL_PAGES=2
-      - <<: *osx
-        osx_image: xcode9.2
-        env: CONAN_APPLE_CLANG_VERSIONS=9.0 CONAN_CURRENT_PAGE=1 CONAN_TOTAL_PAGES=2
-      - <<: *osx
-        osx_image: xcode9.2
-        env: CONAN_APPLE_CLANG_VERSIONS=9.0 CONAN_CURRENT_PAGE=2 CONAN_TOTAL_PAGES=2
-      - <<: *osx
-        osx_image: xcode9.4
-        env: CONAN_APPLE_CLANG_VERSIONS=9.1 CONAN_CURRENT_PAGE=1 CONAN_TOTAL_PAGES=2
-      - <<: *osx
-        osx_image: xcode9.4
-        env: CONAN_APPLE_CLANG_VERSIONS=9.1 CONAN_CURRENT_PAGE=2 CONAN_TOTAL_PAGES=2
-      - <<: *osx
-        osx_image: xcode10
-        env: CONAN_APPLE_CLANG_VERSIONS=10.0 CONAN_CURRENT_PAGE=1 CONAN_TOTAL_PAGES=2
-      - <<: *osx
-        osx_image: xcode10
-        env: CONAN_APPLE_CLANG_VERSIONS=10.0 CONAN_CURRENT_PAGE=2 CONAN_TOTAL_PAGES=2
+builds: &builds
+    name: "XCode 7.3 - Page 1"
+    osx_image: xcode7.3
+    env: CONAN_APPLE_CLANG_VERSIONS=7.3 CONAN_CURRENT_PAGE=1 CONAN_TOTAL_PAGES=2 CONAN_REFERENCE="OpenSSL/${TRAVIS_BUILD_STAGE_NAME}"
+
+    name: "XCode 7.3 - Page 2"
+    osx_image: xcode7.3
+    env: CONAN_APPLE_CLANG_VERSIONS=7.3 CONAN_CURRENT_PAGE=2 CONAN_TOTAL_PAGES=2 CONAN_REFERENCE="OpenSSL/${TRAVIS_BUILD_STAGE_NAME}"
+
+    name: "XCode 8.3 - Page 1"
+    osx_image: xcode8.3
+    env: CONAN_APPLE_CLANG_VERSIONS=8.1 CONAN_CURRENT_PAGE=1 CONAN_TOTAL_PAGES=2 CONAN_REFERENCE="OpenSSL/${TRAVIS_BUILD_STAGE_NAME}"
+
+    name: "XCode 8.3 - Page 2"
+    osx_image: xcode8.3
+    env: CONAN_APPLE_CLANG_VERSIONS=8.1 CONAN_CURRENT_PAGE=2 CONAN_TOTAL_PAGES=2 CONAN_REFERENCE="OpenSSL/${TRAVIS_BUILD_STAGE_NAME}"
+
+    name: "XCode 9.2 - Page 1"
+    osx_image: xcode9.2
+    env: CONAN_APPLE_CLANG_VERSIONS=9.0 CONAN_CURRENT_PAGE=1 CONAN_TOTAL_PAGES=2 CONAN_REFERENCE="OpenSSL/${TRAVIS_BUILD_STAGE_NAME}"
+
+    name: "XCode 9.2 - Page 2"
+    osx_image: xcode9.2
+    env: CONAN_APPLE_CLANG_VERSIONS=9.0 CONAN_CURRENT_PAGE=2 CONAN_TOTAL_PAGES=2 CONAN_REFERENCE="OpenSSL/${TRAVIS_BUILD_STAGE_NAME}"
+
+    name: "XCode 9.4 - Page 1"
+    osx_image: xcode9.4
+    env: CONAN_APPLE_CLANG_VERSIONS=9.1 CONAN_CURRENT_PAGE=1 CONAN_TOTAL_PAGES=2 CONAN_REFERENCE="OpenSSL/${TRAVIS_BUILD_STAGE_NAME}"
+
+    name: "XCode 9.4 - Page 1"
+    osx_image: xcode9.4
+    env: CONAN_APPLE_CLANG_VERSIONS=9.1 CONAN_CURRENT_PAGE=2 CONAN_TOTAL_PAGES=2 CONAN_REFERENCE="OpenSSL/${TRAVIS_BUILD_STAGE_NAME}"
+
+    name: "XCode 10 - Page 1"
+    osx_image: xcode10
+    env: CONAN_APPLE_CLANG_VERSIONS=10.0 CONAN_CURRENT_PAGE=1 CONAN_TOTAL_PAGES=2 CONAN_REFERENCE="OpenSSL/${TRAVIS_BUILD_STAGE_NAME}"
+
+    name: "XCode 10 - Page 1"
+    osx_image: xcode10
+    env: CONAN_APPLE_CLANG_VERSIONS=10.0 CONAN_CURRENT_PAGE=2 CONAN_TOTAL_PAGES=2 CONAN_REFERENCE="OpenSSL/${TRAVIS_BUILD_STAGE_NAME}"
+
+jobs:
+  include:
+    - stage: "1.1.1c"
+      <<: *builds
+    - stage: "1.1.1b"
+      <<: *builds
+    - stage: "1.1.1a"
+      <<: *builds
+
+    - stage: "1.1.0k"
+      <<: *builds
+    - stage: "1.1.0j"
+      <<: *builds
+    - stage: "1.1.0i"
+      <<: *builds
+
+    - stage: "1.0.2s"
+      <<: *builds
+    - stage: "1.0.2r"
+      <<: *builds
+    - stage: "1.0.2q"
+      <<: *builds
 
 install:
-  - chmod +x .travis/install.sh
-  - ./.travis/install.sh
+  - chmod +x .ci/install.sh
+  - ./.ci/install.sh
 
 script:
-  - chmod +x .travis/run.sh
-  - ./.travis/run.sh
+  - chmod +x .ci/run.sh
+  - ./.ci/run.sh

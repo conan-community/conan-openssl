@@ -1,0 +1,344 @@
+version: 2
+.conan-steps: &conan-steps
+  steps:
+    - checkout
+    - restore_cache:
+        keys:
+          - conan-cache
+    - run:
+        name: Update Conan package
+        command: |
+          chmod +x .ci/install.sh
+          .ci/install.sh
+    - save_cache:
+        key: conan-cache
+        paths:
+            - ~/Library/Caches/pip
+            - ~/Library/Caches/Homebrew
+    - run:
+        name: Build recipe
+        command: |
+          chmod +x .ci/run.sh
+          .ci/run.sh
+
+jobs:
+  gcc49:
+    docker:
+      - image: conanio/${CIRCLE_JOB}
+    environment:
+      - CONAN_GCC_VERSIONS: "4.9"
+    <<: *conan-steps
+
+  gcc5:
+    docker:
+      - image: conanio/${CIRCLE_JOB}
+    environment:
+      - CONAN_GCC_VERSIONS: "5"
+    <<: *conan-steps
+
+  gcc6:
+    docker:
+      - image: conanio/${CIRCLE_JOB}
+    environment:
+      - CONAN_GCC_VERSIONS: "6"
+    <<: *conan-steps
+
+  gcc7:
+    docker:
+      - image: conanio/${CIRCLE_JOB}
+    environment:
+      - CONAN_GCC_VERSIONS: "7"
+    <<: *conan-steps
+
+  gcc8:
+    docker:
+      - image: conanio/${CIRCLE_JOB}
+    environment:
+      - CONAN_GCC_VERSIONS: "8"
+    <<: *conan-steps
+
+  gcc9:
+    docker:
+      - image: conanio/${CIRCLE_JOB}
+    environment:
+      - CONAN_GCC_VERSIONS: "9"
+    <<: *conan-steps
+
+  clang39:
+    docker:
+      - image: conanio/${CIRCLE_JOB}
+    environment:
+      - CONAN_CLANG_VERSIONS: "3.9"
+    <<: *conan-steps
+
+  clang40:
+    docker:
+      - image: conanio/${CIRCLE_JOB}
+    environment:
+      - CONAN_CLANG_VERSIONS: "4.0"
+    <<: *conan-steps
+
+  clang50:
+    docker:
+      - image: conanio/${CIRCLE_JOB}
+    environment:
+      - CONAN_CLANG_VERSIONS: "5.0"
+    <<: *conan-steps
+
+  clang60:
+    docker:
+      - image: conanio/${CIRCLE_JOB}
+    environment:
+      - CONAN_CLANG_VERSIONS: "6.0"
+    <<: *conan-steps
+
+  clang7:
+    docker:
+      - image: conanio/${CIRCLE_JOB}
+    environment:
+      - CONAN_CLANG_VERSIONS: "7.0"
+    <<: *conan-steps
+
+  clang8:
+    docker:
+      - image: conanio/${CIRCLE_JOB}
+    environment:
+      - CONAN_CLANG_VERSIONS: "8"
+    <<: *conan-steps
+
+workflows:
+  version: 2
+  OpenSSL/1.1.1c:
+    jobs:
+      - gcc49:
+          context: openssl-1.1.1c
+      - gcc5:
+          context: openssl-1.1.1c
+      - gcc6:
+          context: openssl-1.1.1c
+      - gcc7:
+          context: openssl-1.1.1c
+      - gcc8:
+          context: openssl-1.1.1c
+      - gcc9:
+          context: openssl-1.1.1c
+      - clang39:
+          context: openssl-1.1.1c
+      - clang40:
+          context: openssl-1.1.1c
+      - clang50:
+          context: openssl-1.1.1c
+      - clang60:
+          context: openssl-1.1.1c
+      - clang7:
+          context: openssl-1.1.1c
+      - clang8:
+          context: openssl-1.1.1c
+  OpenSSL/1.1.1b:
+    jobs:
+      - gcc49:
+          context: openssl-1.1.1b
+      - gcc5:
+          context: openssl-1.1.1b
+      - gcc6:
+          context: openssl-1.1.1b
+      - gcc7:
+          context: openssl-1.1.1b
+      - gcc8:
+          context: openssl-1.1.1b
+      - gcc9:
+          context: openssl-1.1.1b
+      - clang39:
+          context: openssl-1.1.1b
+      - clang40:
+          context: openssl-1.1.1b
+      - clang50:
+          context: openssl-1.1.1b
+      - clang60:
+          context: openssl-1.1.1b
+      - clang7:
+          context: openssl-1.1.1b
+      - clang8:
+          context: openssl-1.1.1b
+  OpenSSL/1.1.1a:
+    jobs:
+      - gcc49:
+          context: openssl-1.1.1a
+      - gcc5:
+          context: openssl-1.1.1a
+      - gcc6:
+          context: openssl-1.1.1a
+      - gcc7:
+          context: openssl-1.1.1a
+      - gcc8:
+          context: openssl-1.1.1a
+      - gcc9:
+          context: openssl-1.1.1a
+      - clang39:
+          context: openssl-1.1.1a
+      - clang40:
+          context: openssl-1.1.1a
+      - clang50:
+          context: openssl-1.1.1a
+      - clang60:
+          context: openssl-1.1.1a
+      - clang7:
+          context: openssl-1.1.1a
+      - clang8:
+          context: openssl-1.1.1a
+  OpenSSL/1.1.0k:
+    jobs:
+      - gcc49:
+          context: openssl-1.1.0k
+      - gcc5:
+          context: openssl-1.1.0k
+      - gcc6:
+          context: openssl-1.1.0k
+      - gcc7:
+          context: openssl-1.1.0k
+      - gcc8:
+          context: openssl-1.1.0k
+      - gcc9:
+          context: openssl-1.1.0k
+      - clang39:
+          context: openssl-1.1.0k
+      - clang40:
+          context: openssl-1.1.0k
+      - clang50:
+          context: openssl-1.1.0k
+      - clang60:
+          context: openssl-1.1.0k
+      - clang7:
+          context: openssl-1.1.0k
+      - clang8:
+          context: openssl-1.1.0k
+  OpenSSL/1.1.0j:
+    jobs:
+      - gcc49:
+          context: openssl-1.1.0j
+      - gcc5:
+          context: openssl-1.1.0j
+      - gcc6:
+          context: openssl-1.1.0j
+      - gcc7:
+          context: openssl-1.1.0j
+      - gcc8:
+          context: openssl-1.1.0j
+      - gcc9:
+          context: openssl-1.1.0j
+      - clang39:
+          context: openssl-1.1.0j
+      - clang40:
+          context: openssl-1.1.0j
+      - clang50:
+          context: openssl-1.1.0j
+      - clang60:
+          context: openssl-1.1.0j
+      - clang7:
+          context: openssl-1.1.0j
+      - clang8:
+          context: openssl-1.1.0j
+  OpenSSL/1.1.0i:
+    jobs:
+      - gcc49:
+          context: openssl-1.1.0i
+      - gcc5:
+          context: openssl-1.1.0i
+      - gcc6:
+          context: openssl-1.1.0i
+      - gcc7:
+          context: openssl-1.1.0i
+      - gcc8:
+          context: openssl-1.1.0i
+      - gcc9:
+          context: openssl-1.1.0i
+      - clang39:
+          context: openssl-1.1.0i
+      - clang40:
+          context: openssl-1.1.0i
+      - clang50:
+          context: openssl-1.1.0i
+      - clang60:
+          context: openssl-1.1.0i
+      - clang7:
+          context: openssl-1.1.0i
+      - clang8:
+          context: openssl-1.1.0i
+  OpenSSL/1.0.2s:
+    jobs:
+      - gcc49:
+          context: openssl-1.0.2s
+      - gcc5:
+          context: openssl-1.0.2s
+      - gcc6:
+          context: openssl-1.0.2s
+      - gcc7:
+          context: openssl-1.0.2s
+      - gcc8:
+          context: openssl-1.0.2s
+      - gcc9:
+          context: openssl-1.0.2s
+      - clang39:
+          context: openssl-1.0.2s
+      - clang40:
+          context: openssl-1.0.2s
+      - clang50:
+          context: openssl-1.0.2s
+      - clang60:
+          context: openssl-1.0.2s
+      - clang7:
+          context: openssl-1.0.2s
+      - clang8:
+          context: openssl-1.0.2s
+  OpenSSL/1.0.2r:
+    jobs:
+      - gcc49:
+          context: openssl-1.0.2r
+      - gcc5:
+          context: openssl-1.0.2r
+      - gcc6:
+          context: openssl-1.0.2r
+      - gcc7:
+          context: openssl-1.0.2r
+      - gcc8:
+          context: openssl-1.0.2r
+      - gcc9:
+          context: openssl-1.0.2r
+      - clang39:
+          context: openssl-1.0.2r
+      - clang40:
+          context: openssl-1.0.2r
+      - clang50:
+          context: openssl-1.0.2r
+      - clang60:
+          context: openssl-1.0.2r
+      - clang7:
+          context: openssl-1.0.2r
+      - clang8:
+          context: openssl-1.0.2r
+  OpenSSL/1.0.2q:
+    jobs:
+      - gcc49:
+          context: openssl-1.0.2q
+      - gcc5:
+          context: openssl-1.0.2q
+      - gcc6:
+          context: openssl-1.0.2q
+      - gcc7:
+          context: openssl-1.0.2q
+      - gcc8:
+          context: openssl-1.0.2q
+      - gcc9:
+          context: openssl-1.0.2q
+      - clang39:
+          context: openssl-1.0.2q
+      - clang40:
+          context: openssl-1.0.2q
+      - clang50:
+          context: openssl-1.0.2q
+      - clang60:
+          context: openssl-1.0.2q
+      - clang7:
+          context: openssl-1.0.2q
+      - clang8:
+          context: openssl-1.0.2q
