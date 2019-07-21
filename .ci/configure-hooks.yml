@@ -1,0 +1,5 @@
+steps:
+  - powershell: |
+      New-Item -path "$env:USERPROFILE\.conan\hooks" -type directory
+      Copy-Item ".ci/remove_openssl.py" -Destination "$env:USERPROFILE\.conan\hooks"
+    displayName: 'Configure Conan Hooks'
