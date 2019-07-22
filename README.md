@@ -1,6 +1,6 @@
 [![Download](https://api.bintray.com/packages/conan-community/conan/OpenSSL%3Aconan/images/download.svg) ](https://bintray.com/conan-community/conan/OpenSSL%3Aconan/_latestVersion)
 [![Build Status Travis](https://travis-ci.org/conan-community/conan-openssl.svg)](https://travis-ci.org/conan-community/conan-openssl)
-[![Build Status AppVeyor](https://ci.appveyor.com/api/projects/status/github/conan-community/conan-OpenSSL?svg=true)](https://ci.appveyor.com/project/ConanCIintegration/conan-OpenSSL)
+[![Build Status](https://dev.azure.com/conan-community/packages/_apis/build/status/conan-community.conan-openssl?branchName=release/1.1.1c)](https://dev.azure.com/conan-community/packages/_build/latest?definitionId=1&branchName=release/1.1.1c)
 
 ## Conan package recipe for *OpenSSL*
 
