@@ -447,12 +447,10 @@ class OpenSSLConan(ConanFile):
 
     @property
     def _perl(self):
-        if tools.os_info.is_windows:
+        if tools.os_info.is_windows and not self._win_bash:
             # enforce strawberry perl, otherwise wrong perl could be used (from Git bash, MSYS, etc.)
-            perl = os.path.join(self.deps_cpp_info["strawberryperl"].rootpath, "perl", "bin", "perl.exe")
-            perl = tools.unix_path(perl) if self._win_bash else perl
-            return perl
-        return tools.which("perl") or "perl"
+            return os.path.join(self.deps_cpp_info["strawberryperl"].rootpath, "perl", "bin", "perl.exe")
+        return "perl"
 
     def _make(self):
         with tools.chdir(self._source_subfolder):
@@ -494,7 +492,7 @@ class OpenSSLConan(ConanFile):
 
     @property
     def _win_bash(self):
-        return tools.os_info.is_windows and self.settings.compiler != "Visual Studio"
+        return tools.os_info.is_windows and self.settings.os == "Windows" and  self.settings.compiler == "gcc"
 
     @property
     def _make_program(self):
