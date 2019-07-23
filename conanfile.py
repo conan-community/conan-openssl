@@ -100,8 +100,7 @@ class OpenSSLConan(ConanFile):
     def build_requirements(self):
         # useful for example for conditional build_requires
         if tools.os_info.is_windows:
-            if not tools.which("perl"):
-                self.build_requires("strawberryperl/5.30.0.1@conan/stable")
+            self.build_requires("strawberryperl/5.30.0.1@conan/stable")
             if not self.options.no_asm and not tools.which("nasm"):
                 self.build_requires("nasm/2.13.01@conan/stable")
 
@@ -327,7 +326,8 @@ class OpenSSLConan(ConanFile):
                 "shared" if self.options.shared else "no-shared",
                 "--prefix=%s" % prefix,
                 "--openssldir=%s" % openssldir,
-                "no-unit-test"]
+                "no-unit-test",
+                "PERL=%s" % self._perl]
         if self._full_version < "1.1.0" or self._full_version >= "1.1.1":
             args.append("no-tests")
         if self._full_version >= "1.1.0":
@@ -444,6 +444,13 @@ class OpenSSLConan(ConanFile):
             command.append(("-j%s" % tools.cpu_count()) if parallel else "-j1")
         self.run(" ".join(command), win_bash=self._win_bash)
 
+    @property
+    def _perl(self):
+        if tools.os_info.is_windows:
+            # enforce strawberry perl, otherwise wrong perl could be used (from Git bash, MSYS, etc.)
+            return os.path.join(self.deps_cpp_info["strawberryperl"].rootpath, "perl", "bin", "perl.exe")
+        return tools.which("perl") or "perl"
+
     def _make(self):
         with tools.chdir(self._source_subfolder):
             # workaround for MinGW (https://github.com/openssl/openssl/issues/7653)
@@ -452,7 +459,7 @@ class OpenSSLConan(ConanFile):
             args = " ".join(self._configure_args)
             self.output.info(self._configure_args)
 
-            self.run('perl ./Configure {args}'.format(args=args), win_bash=self._win_bash)
+            self.run('{perl} ./Configure {args}'.format(perl=self._perl, args=args), win_bash=self._win_bash)
 
             self._patch_install_name()
 
