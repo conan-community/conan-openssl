@@ -326,8 +326,9 @@ class OpenSSLConan(ConanFile):
                 "shared" if self.options.shared else "no-shared",
                 "--prefix=%s" % prefix,
                 "--openssldir=%s" % openssldir,
-                "no-unit-test",
-                "PERL=%s" % self._perl]
+                "no-unit-test"]
+        if self._full_version >= "1.1.1":
+            args.append("PERL=%s" % self._perl)
         if self._full_version < "1.1.0" or self._full_version >= "1.1.1":
             args.append("no-tests")
         if self._full_version >= "1.1.0":
@@ -484,9 +485,10 @@ class OpenSSLConan(ConanFile):
 
     def build(self):
         with tools.vcvars(self.settings) if self.settings.compiler == "Visual Studio" else tools.no_op():
-            if self._full_version >= "1.1.0":
-                self._create_targets()
-            self._make()
+            with tools.environment_append({"PERL": self._perl}):
+                if self._full_version >= "1.1.0":
+                    self._create_targets()
+                self._make()
 
     @property
     def _win_bash(self):
