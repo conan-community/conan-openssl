@@ -506,16 +506,24 @@ class OpenSSLConan(ConanFile):
                 self._run_make()
                 self._run_make(targets=["install_sw"], parallel=False)
 
+    @property
+    def _cc(self):
+        if "CC" in os.environ:
+            return os.environ["CC"]
+        return {"apple-clang": tools.XCRun(self.settings).find("clang"),
+                "clang": "clang",
+                "gcc": "gcc"}.get(str(self.settings.os), "cc")
+
     def build(self):
         with tools.vcvars(self.settings) if self.settings.compiler == "Visual Studio" else tools.no_op():
             env_vars = {"PERL": self._perl}
+            if self._full_version < "1.1.0":
+                cflags = " ".join(self._get_env_build().flags)
+                env_vars["CC"] = "%s %s" % (self._cc, cflags)
             if self.settings.compiler == "apple-clang":
                 xcrun = tools.XCRun(self.settings)
                 env_vars["CROSS_SDK"] = os.path.basename(xcrun.sdk_path)
                 env_vars["CROSS_TOP"] = os.path.dirname(os.path.dirname(xcrun.sdk_path))
-                cc = os.environ.get("CC", xcrun.find("clang"))
-                cflags = " ".join(self._get_env_build().flags)
-                env_vars["CC"] = "%s %s" % (cc, cflags)
             with tools.environment_append(env_vars):
                 if self._full_version >= "1.1.0":
                     self._create_targets()
