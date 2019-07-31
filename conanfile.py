@@ -95,6 +95,7 @@ class OpenSSLConan(ConanFile):
     default_options = {key: False for key in options.keys()}
     default_options["fPIC"] = True
     default_options["openssldir"] = None
+    _env_build = None
     _source_subfolder = "sources"
 
     def build_requirements(self):
@@ -231,9 +232,9 @@ class OpenSSLConan(ConanFile):
             "Macos-ppc64-*": "darwin64-ppc-cc",
             "Macos-ppc64be-*": "darwin64-ppc-cc",
             "Macos-*-*": "darwin-common",
-            "iOS": "ios-common",
-            "watchOS": "ios-common",
-            "tvOS": "ios-common",
+            "iOS-*-*": "iphoneos-cross",
+            "watchOS-*-*": "iphoneos-cross",
+            "tvOS-*-*": "iphoneos-cross",
             # Android targets are very broken, see https://github.com/openssl/openssl/issues/7398
             "Android-armv7-*": "linux-generic32",
             "Android-armv7hf-*": "linux-generic32",
@@ -263,7 +264,7 @@ class OpenSSLConan(ConanFile):
             "WindowsStore-armv7-*": "VC-WIN32-ARM-UWP",
             "WindowsStore-armv8-*": "VC-WIN64-ARM-UWP",
             "WindowsStore-*-*": "VC-WIN32-ONECORE",
-            "WindowsCE": "VC-CE",
+            "WindowsCE-*-*": "VC-CE",
             "SunOS-x86-gcc": "%ssolaris-x86-gcc" % self._target_prefix,
             "SunOS-x86_64-gcc": "%ssolaris64-x86_64-gcc" % self._target_prefix,
             "SunOS-sparc-gcc": "%ssolaris-sparcv8-gcc" % self._target_prefix,
@@ -318,6 +319,37 @@ class OpenSSLConan(ConanFile):
             return getattr(tools.XCRun(self.settings), apple_name)
         return None
 
+    def _patch_makefile_org(self):
+        # https://wiki.openssl.org/index.php/Compilation_and_Installation#Modifying_Build_Settings
+        # its often easier to modify Configure and Makefile.org rather than trying to add targets to the configure scripts
+        makefile_org = os.path.join(self._source_subfolder, "Makefile.org")
+        env_build = self._get_env_build()
+        with tools.environment_append(env_build.vars):
+            cc = os.environ.get("CC", "cc")
+            tools.replace_in_file(makefile_org, "CC= cc", "CC= %s %s" % (cc, os.environ["CFLAGS"]))
+            if "AR" in os.environ:
+                tools.replace_in_file(makefile_org, "AR=ar", "AR=%s" % os.environ["AR"])
+            if "RANLIB" in os.environ:
+                tools.replace_in_file(makefile_org, "RANLIB= ranlib", "RANLIB= %s" % os.environ["RANLIB"])
+            rc = os.environ.get("WINDRES", os.environ.get("RC"))
+            if rc:
+                tools.replace_in_file(makefile_org, "RC= windres", "RC= %s" % rc)
+            if "NM" in os.environ:
+                tools.replace_in_file(makefile_org, "NM= nm", "NM= %s" % os.environ["NM"])
+            if "AS" in os.environ:
+                tools.replace_in_file(makefile_org, "AS=$(CC) -c", "AS=%s" % os.environ["AS"])
+
+    def _get_env_build(self):
+        if not self._env_build:
+            self._env_build = AutoToolsBuildEnvironment(self)
+            if self.settings.compiler == "apple-clang":
+                self._env_build.flags.append("-arch %s" % tools.to_apple_arch(self.settings.arch))
+                self._env_build.flags.append("-isysroot %s" % tools.XCRun(self.settings).sdk_path)
+                if self.settings.get_safe("os.version"):
+                    self._env_build.flags.append(tools.apple_deployment_target_flag(self.settings.os,
+                                                                              self.settings.os.version))
+        return self._env_build
+
     @property
     def _configure_args(self):
         openssldir = self.options.openssldir if self.options.openssldir else os.path.join(self.package_folder, "res")
@@ -344,10 +376,6 @@ class OpenSSLConan(ConanFile):
                 args.append("-DOPENSSL_CAPIENG_DIALOG=1")
         else:
             args.append("-fPIC" if self.options.fPIC else "")
-
-        if self._full_version < "1.1.0":
-            env_build = AutoToolsBuildEnvironment(self)
-            args.extend(env_build.flags)
 
         if "zlib" in self.deps_cpp_info.deps:
             zlib_info = self.deps_cpp_info["zlib"]
@@ -387,14 +415,8 @@ class OpenSSLConan(ConanFile):
 );
 """
         cflags = []
-        if self.settings.compiler == "apple-clang":
-            cflags.append("-arch %s" % tools.to_apple_arch(self.settings.arch))
-            cflags.append("-isysroot %s" % tools.XCRun(self.settings).sdk_path)
-            if self.settings.get_safe("os.version"):
-                cflags.append(tools.apple_deployment_target_flag(self.settings.os,
-                                                                 self.settings.os.version))
 
-        env_build = AutoToolsBuildEnvironment(self)
+        env_build = self._get_env_build()
         cflags.extend(env_build.flags)
         cxxflags = cflags[:]
         cxxflags.extend(env_build.cxx_flags)
@@ -486,9 +508,19 @@ class OpenSSLConan(ConanFile):
 
     def build(self):
         with tools.vcvars(self.settings) if self.settings.compiler == "Visual Studio" else tools.no_op():
-            with tools.environment_append({"PERL": self._perl}):
+            env_vars = {"PERL": self._perl}
+            if self.settings.compiler == "apple-clang":
+                xcrun = tools.XCRun(self.settings)
+                env_vars["CROSS_SDK"] = os.path.basename(xcrun.sdk_path)
+                env_vars["CROSS_TOP"] = os.path.dirname(os.path.dirname(xcrun.sdk_path))
+                cc = os.environ.get("CC", xcrun.find("clang"))
+                cflags = " ".join(self._get_env_build().flags)
+                env_vars["CC"] = "%s %s" % (cc, cflags)
+            with tools.environment_append(env_vars):
                 if self._full_version >= "1.1.0":
                     self._create_targets()
+                else:
+                    self._patch_makefile_org()
                 self._make()
 
     @property
