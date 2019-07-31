@@ -300,15 +300,15 @@ class OpenSSLConan(ConanFile):
         query = "%s-%s-%s" % (self.settings.os, self.settings.arch, self.settings.compiler)
         ancestor = next((self._targets[i] for i in self._targets if fnmatch.fnmatch(query, i)), None)
         if not ancestor:
-            raise ConanInvalidConfiguration("unsupported configuration: %s %s %s,"
+            raise ConanInvalidConfiguration("unsupported configuration: %s %s %s, "
                                             "please open an issue: "
                                             "https://github.com/conan-community/community/issues. "
                                             "alternatively, set the CONAN_OPENSSL_CONFIGURATION environment variable "
                                             "into your conan profile "
                                             "(list of configurations can be found by running './Configure --help')." %
-                                            self.settings.os,
+                                            (self.settings.os,
                                             self.settings.arch,
-                                            self.settings.compiler)
+                                            self.settings.compiler))
         return ancestor
 
     def _tool(self, env_name, apple_name):
