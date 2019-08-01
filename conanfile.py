@@ -510,9 +510,13 @@ class OpenSSLConan(ConanFile):
     def _cc(self):
         if "CC" in os.environ:
             return os.environ["CC"]
-        return {"apple-clang": tools.XCRun(self.settings).find("clang"),
-                "clang": "clang",
-                "gcc": "gcc"}.get(str(self.settings.os), "cc")
+        if self.settings.compiler == "apple-clang":
+            return tools.XCRun(self.settings).find("clang")
+        elif self.settings.compiler == "clang":
+            return "clang"
+        elif self.settings.compiler == "gcc":
+            return "gcc"
+        return "cc"
 
     def build(self):
         with tools.vcvars(self.settings) if self.settings.compiler == "Visual Studio" else tools.no_op():
