@@ -1,3 +1,5 @@
+**OBSOLETE** The recipe is now in https://github.com/conan-io/conan-center-index
+
 [![Download](https://api.bintray.com/packages/conan-community/conan/OpenSSL%3Aconan/images/download.svg) ](https://bintray.com/conan-community/conan/OpenSSL%3Aconan/_latestVersion)
 [![Build Status Travis](https://travis-ci.org/conan-community/conan-openssl.svg)](https://travis-ci.org/conan-community/conan-openssl)
 [![CircleCI](https://circleci.com/gh/conan-community/conan-openssl.svg?style=svg)](https://circleci.com/gh/conan-community/conan-openssl)
