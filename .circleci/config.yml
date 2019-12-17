@@ -349,6 +349,8 @@ workflows:
           context: openssl-1.0.2q
       - clang8:
           context: openssl-1.0.2q
+      - clang9:
+          context: openssl-1.0.2q
   OpenSSL/1.0.2o:
     jobs:
       - gcc49:
