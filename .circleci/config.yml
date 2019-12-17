@@ -106,6 +106,13 @@ jobs:
       - CONAN_CLANG_VERSIONS: "8"
     <<: *conan-steps
 
+  clang9:
+    docker:
+      - image: conanio/${CIRCLE_JOB}
+    environment:
+      - CONAN_CLANG_VERSIONS: "9"
+    <<: *conan-steps
+
 workflows:
   version: 2
   OpenSSL/1.1.1c:
