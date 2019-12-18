@@ -106,6 +106,13 @@ jobs:
       - CONAN_CLANG_VERSIONS: "8"
     <<: *conan-steps
 
+  clang9:
+    docker:
+      - image: conanio/${CIRCLE_JOB}
+    environment:
+      - CONAN_CLANG_VERSIONS: "9"
+    <<: *conan-steps
+
 workflows:
   version: 2
   OpenSSL/1.1.1c:
@@ -342,3 +349,33 @@ workflows:
           context: openssl-1.0.2q
       - clang8:
           context: openssl-1.0.2q
+      - clang9:
+          context: openssl-1.0.2q
+  OpenSSL/1.0.2o:
+    jobs:
+      - gcc49:
+          context: openssl-1.0.2o
+      - gcc5:
+          context: openssl-1.0.2o
+      - gcc6:
+          context: openssl-1.0.2o
+      - gcc7:
+          context: openssl-1.0.2o
+      - gcc8:
+          context: openssl-1.0.2o
+      - gcc9:
+          context: openssl-1.0.2o
+      - clang39:
+          context: openssl-1.0.2o
+      - clang40:
+          context: openssl-1.0.2o
+      - clang50:
+          context: openssl-1.0.2o
+      - clang60:
+          context: openssl-1.0.2o
+      - clang7:
+          context: openssl-1.0.2o
+      - clang8:
+          context: openssl-1.0.2o
+      - clang9:
+          context: openssl-1.0.2o

@@ -1141,3 +1141,102 @@ jobs:
           MINGW_CONFIGURATIONS: "8@x86_64@seh@posix"
           CONAN_BUILD_REQUIRES: "msys2_installer/latest@bincrafters/stable"
           CONAN_REMOTES: "https://api.bintray.com/conan/bincrafters/public-conan"
+
+  - job: OpenSSL_1_0_2o_VS2015
+    timeoutInMinutes: 120
+    pool:
+      vmImage: 'vs2015-win2012r2'
+    steps:
+      - template: .ci/install-cmake.yml
+      - template: .ci/install-python.yml
+      - template: .ci/configure-hooks.yml
+      - script: |
+          del /f "C:\Program Files\Git\usr\bin\perl.exe"
+          C:\Python37\python.exe -m ensurepip
+          C:\Python37\python.exe -m pip install conan conan-package-tools
+          conan config set hooks.remove_openssl
+          C:\Python37\python.exe build.py
+        env:
+          CONAN_PASSWORD: $(CONAN_PASSWORD)
+          CONAN_REFERENCE: OpenSSL/1.0.2o
+    strategy:
+      matrix:
+        Visual Studio 12:
+          CONAN_VISUAL_VERSIONS: 12
+        Visual Studio 14:
+          CONAN_VISUAL_VERSIONS: 14
+  - job: OpenSSL_1_0_2o
+    timeoutInMinutes: 120
+    pool:
+      vmImage: $(IMAGE_NAME)
+    steps:
+      - task: UsePythonVersion@0
+        inputs:
+          versionSpec: '3.7'
+      - template: .ci/configure-hooks.yml
+      - script: |
+          del /f "C:\Program Files\Git\usr\bin\perl.exe"
+          pip.exe install conan conan-package-tools
+          conan config set hooks.remove_openssl
+          python.exe build.py
+        env:
+          CONAN_PASSWORD: $(CONAN_PASSWORD)
+          CONAN_REFERENCE: OpenSSL/1.0.2o
+    strategy:
+      matrix:
+        Visual Studio 16 2019:
+          IMAGE_NAME: "windows-2019"
+          CONAN_VISUAL_VERSIONS: 16
+        Visual Studio 15 2017:
+          IMAGE_NAME: "vs2017-win2016"
+          CONAN_VISUAL_VERSIONS: 15
+        MinGW 4.9 dwarf x86:
+          IMAGE_NAME: "vs2017-win2016"
+          MINGW_CONFIGURATIONS: "4.9@x86@dwarf2@posix"
+          CONAN_BUILD_REQUIRES: "msys2_installer/latest@bincrafters/stable"
+          CONAN_REMOTES: "https://api.bintray.com/conan/bincrafters/public-conan"
+        MinGW 4.9 seh x86_64:
+          IMAGE_NAME: "vs2017-win2016"
+          MINGW_CONFIGURATIONS: "4.9@x86_64@seh@posix"
+          CONAN_BUILD_REQUIRES: "msys2_installer/latest@bincrafters/stable"
+          CONAN_REMOTES: "https://api.bintray.com/conan/bincrafters/public-conan"
+        MinGW 5 dwarf x86:
+          IMAGE_NAME: "vs2017-win2016"
+          MINGW_CONFIGURATIONS: "5@x86@dwarf2@posix"
+          CONAN_BUILD_REQUIRES: "msys2_installer/latest@bincrafters/stable"
+          CONAN_REMOTES: "https://api.bintray.com/conan/bincrafters/public-conan"
+        MinGW 5 seh x86_64:
+          IMAGE_NAME: "vs2017-win2016"
+          MINGW_CONFIGURATIONS: "5@x86_64@seh@posix"
+          CONAN_BUILD_REQUIRES: "msys2_installer/latest@bincrafters/stable"
+          CONAN_REMOTES: "https://api.bintray.com/conan/bincrafters/public-conan"
+        MinGW 6 dwarf x86:
+          IMAGE_NAME: "vs2017-win2016"
+          MINGW_CONFIGURATIONS: "6@x86@dwarf2@posix"
+          CONAN_BUILD_REQUIRES: "msys2_installer/latest@bincrafters/stable"
+          CONAN_REMOTES: "https://api.bintray.com/conan/bincrafters/public-conan"
+        MinGW 6 seh x86_64:
+          IMAGE_NAME: "vs2017-win2016"
+          MINGW_CONFIGURATIONS: "6@x86_64@seh@posix"
+          CONAN_BUILD_REQUIRES: "msys2_installer/latest@bincrafters/stable"
+          CONAN_REMOTES: "https://api.bintray.com/conan/bincrafters/public-conan"
+        MinGW 7 dwarf x86:
+          IMAGE_NAME: "vs2017-win2016"
+          MINGW_CONFIGURATIONS: "7@x86@dwarf2@posix"
+          CONAN_BUILD_REQUIRES: "msys2_installer/latest@bincrafters/stable"
+          CONAN_REMOTES: "https://api.bintray.com/conan/bincrafters/public-conan"
+        MinGW 7 seh x86_64:
+          IMAGE_NAME: "vs2017-win2016"
+          MINGW_CONFIGURATIONS: "7@x86_64@seh@posix"
+          CONAN_BUILD_REQUIRES: "msys2_installer/latest@bincrafters/stable"
+          CONAN_REMOTES: "https://api.bintray.com/conan/bincrafters/public-conan"
+        MinGW 8 dwarf x86:
+          IMAGE_NAME: "vs2017-win2016"
+          MINGW_CONFIGURATIONS: "8@x86@dwarf2@posix"
+          CONAN_BUILD_REQUIRES: "msys2_installer/latest@bincrafters/stable"
+          CONAN_REMOTES: "https://api.bintray.com/conan/bincrafters/public-conan"
+        MinGW 8 seh x86_64:
+          IMAGE_NAME: "vs2017-win2016"
+          MINGW_CONFIGURATIONS: "8@x86_64@seh@posix"
+          CONAN_BUILD_REQUIRES: "msys2_installer/latest@bincrafters/stable"
+          CONAN_REMOTES: "https://api.bintray.com/conan/bincrafters/public-conan"
